@@ -86,6 +86,15 @@ class DesignRepository(private val context: Context) {
         return loadSkillsFromAssets().find { it.slug == slug }
     }
 
+    // Plugins
+    fun getPlugins(): List<Plugin> {
+        return loadPluginsFromAssets()
+    }
+
+    fun getPluginsByCategory(category: String): List<Plugin> {
+        return loadPluginsFromAssets().filter { it.category == category }
+    }
+
     // Generation
     fun generateDesign(
         config: ApiConfig,
@@ -145,6 +154,24 @@ class DesignRepository(private val context: Context) {
         }
     }
 
+    private fun loadPluginsFromAssets(): List<Plugin> {
+        return try {
+            val json = context.assets.open("plugins/metadata.json").bufferedReader().use { it.readText() }
+            val arr = kotlinx.serialization.json.Json.parseToJsonElement(json).jsonArray
+            arr.map { el ->
+                val obj = el.jsonObject
+                Plugin(
+                    id = obj["id"]?.jsonPrimitive?.content ?: "",
+                    name = obj["name"]?.jsonPrimitive?.content ?: "",
+                    category = obj["category"]?.jsonPrimitive?.content ?: "",
+                    source = obj["source"]?.jsonPrimitive?.content ?: "official"
+                )
+            }
+        } catch (_: Exception) {
+            getDefaultPlugins()
+        }
+    }
+
     private fun getDefaultDesignMd(): String = """
 # Design System
 
@@ -188,6 +215,17 @@ class DesignRepository(private val context: Context) {
         Skill("pitch-deck", "Pitch Deck", "pitch-deck", "deck", "marketing"),
         Skill("social-post", "Social Post", "social-post", "image", "marketing"),
         Skill("logo", "Logo Design", "logo", "image", "design"),
+    )
+
+    private fun getDefaultPlugins() = listOf(
+        Plugin("web-prototype", "Web Prototype", "Create web prototypes", "Template", "official"),
+        Plugin("mobile-app", "Mobile App", "Create mobile app designs", "Template", "official"),
+        Plugin("dashboard", "Dashboard", "Create dashboard designs", "Template", "official"),
+        Plugin("pitch-deck", "Pitch Deck", "Create pitch decks", "Template", "official"),
+        Plugin("social-post", "Social Post", "Create social media posts", "Template", "official"),
+        Plugin("logo", "Logo Design", "Create logo designs", "Template", "official"),
+        Plugin("hyperframes", "HyperFrames", "Motion graphics", "Video Template", "official"),
+        Plugin("video-shortform", "Short-form Video", "Create short videos", "Video Template", "official")
     )
 
     // Mappers

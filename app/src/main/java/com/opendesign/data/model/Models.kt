@@ -81,5 +81,6 @@ data class Plugin(
     val name: String,
     val description: String = "",
     val category: String = "",
+    val source: String = "official",
     val skillMd: String = ""
 )
