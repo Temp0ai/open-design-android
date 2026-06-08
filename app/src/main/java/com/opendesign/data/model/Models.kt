@@ -61,9 +61,9 @@ data class ChatMessage(
 
 @Serializable
 data class ApiConfig(
-    val provider: String = "anthropic",
+    val provider: String = "local",
     val apiKey: String = "",
-    val model: String = "claude-3-5-sonnet-20241022",
+    val model: String = "gemma-2b-it-q4",
     val baseUrl: String = ""
 )
 

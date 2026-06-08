@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.opendesign.ai.LocalAiEngine
 import com.opendesign.data.model.Skill
 import com.opendesign.ui.viewmodel.CreateViewModel
 
@@ -34,6 +35,7 @@ fun CreateScreen(viewModel: CreateViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsState()
     val skills by viewModel.skills.collectAsState()
     val designSystems by viewModel.designSystems.collectAsState()
+    val downloadedModels by viewModel.downloadedModels.collectAsState()
 
     if (uiState.generatedHtml != null) {
         PreviewScreen(
@@ -63,13 +65,61 @@ fun CreateScreen(viewModel: CreateViewModel = viewModel()) {
             }
         }
 
+        // Model download prompt
+        if (downloadedModels.isEmpty()) {
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Download a model to start",
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Go to Settings > Local AI > pick a model to download. Models run 100% on your phone - no internet needed.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                    }
+                }
+            }
+        }
+
+        // Download progress
+        if (uiState.downloadState is LocalAiEngine.DownloadState.Downloading) {
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("Downloading model...", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        LinearProgressIndicator(
+                            progress = { (uiState.downloadState as LocalAiEngine.DownloadState.Downloading).progress },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Text(
+                            text = "${((uiState.downloadState as LocalAiEngine.DownloadState.Downloading).progress * 100).toInt()}%",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                }
+            }
+        }
+
+        // Skills
         item {
             Column {
-                Text(
-                    text = "What to create?",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                Text(text = "What to create?", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(skills) { skill ->
@@ -84,103 +134,67 @@ fun CreateScreen(viewModel: CreateViewModel = viewModel()) {
             }
         }
 
+        // Prompt
         item {
             Column {
-                Text(
-                    text = "Describe it",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                Text(text = "Describe it", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = uiState.prompt,
                     onValueChange = { viewModel.updatePrompt(it) },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = {
-                        Text("A modern SaaS landing page with pricing, testimonials, and hero CTA...")
-                    },
+                    placeholder = { Text("A modern SaaS landing page with pricing...") },
                     minLines = 4,
                     shape = RoundedCornerShape(12.dp)
                 )
             }
         }
 
+        // Style
         item {
             Column {
-                Text(
-                    text = "Design Style",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                Text(text = "Design Style", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     STYLE_OPTIONS.take(3).forEach { (name, color, id) ->
-                        StyleCard(
-                            name = name,
-                            color = color,
-                            selected = uiState.selectedStyleId == id,
-                            onClick = { viewModel.selectStyle(id) },
-                            modifier = Modifier.weight(1f)
-                        )
+                        StyleCard(name = name, color = color, selected = uiState.selectedStyleId == id,
+                            onClick = { viewModel.selectStyle(id) }, modifier = Modifier.weight(1f))
                     }
                 }
                 Spacer(modifier = Modifier.height(10.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     STYLE_OPTIONS.drop(3).forEach { (name, color, id) ->
-                        StyleCard(
-                            name = name,
-                            color = color,
-                            selected = uiState.selectedStyleId == id,
-                            onClick = { viewModel.selectStyle(id) },
-                            modifier = Modifier.weight(1f)
-                        )
+                        StyleCard(name = name, color = color, selected = uiState.selectedStyleId == id,
+                            onClick = { viewModel.selectStyle(id) }, modifier = Modifier.weight(1f))
                     }
                 }
             }
         }
 
+        // Design System
         item {
             Column {
-                Text(
-                    text = "Design System",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                Text(text = "Design System", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
                 val selectedName = designSystems.find { it.slug == uiState.selectedDesignSystemSlug }?.name ?: "Linear"
                 OutlinedTextField(
-                    value = selectedName,
-                    onValueChange = {},
-                    modifier = Modifier.fillMaxWidth(),
-                    readOnly = true,
-                    trailingIcon = { Icon(Icons.Default.ArrowDropDown, contentDescription = null) },
+                    value = selectedName, onValueChange = {}, modifier = Modifier.fillMaxWidth(),
+                    readOnly = true, trailingIcon = { Icon(Icons.Default.ArrowDropDown, contentDescription = null) },
                     shape = RoundedCornerShape(12.dp)
                 )
             }
         }
 
-        item {
-            if (uiState.error != null) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        text = uiState.error!!,
-                        modifier = Modifier.padding(16.dp),
-                        color = MaterialTheme.colorScheme.onErrorContainer
-                    )
+        // Error
+        if (uiState.error != null) {
+            item {
+                Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer), shape = RoundedCornerShape(12.dp)) {
+                    Text(text = uiState.error!!, modifier = Modifier.padding(16.dp), color = MaterialTheme.colorScheme.onErrorContainer)
                 }
             }
         }
 
+        // Generate button
         item {
             Button(
                 modifier = Modifier.fillMaxWidth(),
@@ -190,33 +204,23 @@ fun CreateScreen(viewModel: CreateViewModel = viewModel()) {
                 contentPadding = PaddingValues(16.dp)
             ) {
                 if (uiState.isGenerating) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
+                    CircularProgressIndicator(modifier = Modifier.size(20.dp), color = MaterialTheme.colorScheme.onPrimary)
                     Spacer(modifier = Modifier.width(8.dp))
                 }
                 Text(
-                    text = if (uiState.isGenerating) "Generating..." else "Generate Design (Works Offline)",
+                    text = if (uiState.isGenerating) "Generating..." else "Generate Design",
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold
                 )
             }
         }
 
+        // Streaming preview
         if (uiState.isGenerating && uiState.streamingText != null) {
             item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                ) {
-                    Text(
-                        text = uiState.streamingText!!.takeLast(500),
-                        modifier = Modifier.padding(12.dp),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+                    Text(text = uiState.streamingText!!.takeLast(500), modifier = Modifier.padding(12.dp),
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
@@ -224,40 +228,18 @@ fun CreateScreen(viewModel: CreateViewModel = viewModel()) {
 }
 
 @Composable
-fun StyleCard(
-    name: String,
-    color: Color,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun StyleCard(name: String, color: Color, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier.clickable(onClick = onClick),
         shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (selected) color.copy(alpha = 0.1f)
-            else MaterialTheme.colorScheme.surface
-        ),
-        border = if (selected) CardDefaults.outlinedCardBorder().copy(
-            width = 2.dp,
-            brush = androidx.compose.ui.graphics.SolidColor(color)
-        ) else CardDefaults.outlinedCardBorder()
+        colors = CardDefaults.cardColors(containerColor = if (selected) color.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surface),
+        border = if (selected) CardDefaults.outlinedCardBorder().copy(width = 2.dp, brush = androidx.compose.ui.graphics.SolidColor(color))
+        else CardDefaults.outlinedCardBorder()
     ) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(16.dp)
-                    .background(color, RoundedCornerShape(8.dp))
-            )
+        Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(modifier = Modifier.size(16.dp).background(color, RoundedCornerShape(8.dp)))
             Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = name,
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.SemiBold
-            )
+            Text(text = name, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
         }
     }
 }

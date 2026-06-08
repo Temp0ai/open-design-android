@@ -5,8 +5,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.opendesign.data.model.ApiConfig
 import com.opendesign.data.preferences.SettingsManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -43,6 +45,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             val current = apiConfig.value
             settingsManager.saveApiConfig(current.copy(baseUrl = baseUrl))
+        }
+    }
+
+    suspend fun findOllama(): String? {
+        return withContext(Dispatchers.IO) {
+            settingsManager.findOllama()
         }
     }
 

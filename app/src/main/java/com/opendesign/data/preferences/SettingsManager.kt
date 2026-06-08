@@ -1,12 +1,15 @@
 package com.opendesign.data.preferences
 
 import android.content.Context
+import android.net.wifi.WifiManager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import com.opendesign.data.model.ApiConfig
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.net.InetSocketAddress
+import java.net.Socket
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -21,9 +24,9 @@ class SettingsManager(private val context: Context) {
 
     val apiConfig: Flow<ApiConfig> = context.dataStore.data.map { prefs ->
         ApiConfig(
-            provider = prefs[KEY_PROVIDER] ?: "anthropic",
+            provider = prefs[KEY_PROVIDER] ?: "local",
             apiKey = prefs[KEY_API_KEY] ?: "",
-            model = prefs[KEY_MODEL] ?: "claude-3-5-sonnet-20241022",
+            model = prefs[KEY_MODEL] ?: "gemma-2b-it-q4",
             baseUrl = prefs[KEY_BASE_URL] ?: ""
         )
     }
@@ -39,5 +42,39 @@ class SettingsManager(private val context: Context) {
 
     suspend fun clearAll() {
         context.dataStore.edit { it.clear() }
+    }
+
+    fun getDeviceIp(): String {
+        try {
+            val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            val ip = wifiManager.connectionInfo.ipAddress
+            return String.format(
+                "%d.%d.%d.%d",
+                ip and 0xff,
+                ip shr 8 and 0xff,
+                ip shr 16 and 0xff,
+                ip shr 24 and 0xff
+            )
+        } catch (_: Exception) {
+            return "192.168.1.1"
+        }
+    }
+
+    suspend fun findOllama(): String? {
+        val ip = getDeviceIp()
+        val base = ip.substringBeforeLast(".")
+        val ports = listOf(11434)
+
+        for (suffix in 1..254) {
+            for (port in ports) {
+                try {
+                    val socket = Socket()
+                    socket.connect(InetSocketAddress("$base.$suffix", port), 200)
+                    socket.close()
+                    return "http://$base.$suffix:$port/v1"
+                } catch (_: Exception) {}
+            }
+        }
+        return null
     }
 }

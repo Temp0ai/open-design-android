@@ -32,8 +32,14 @@ class OpenDesignApi {
         const val PROVIDER_GOOGLE = "google"
         const val PROVIDER_OLLAMA = "ollama"
         const val PROVIDER_MIMO = "mimo"
+        const val PROVIDER_LOCAL = "local"
 
         val PROVIDER_MODELS = mapOf(
+            PROVIDER_LOCAL to listOf(
+                "gemma-2b-it-q4",
+                "phi-3-mini-q4",
+                "qwen2.5-1.5b-q4"
+            ),
             PROVIDER_ANTHROPIC to listOf(
                 "claude-3-5-sonnet-20241022",
                 "claude-3-opus-20240229",
@@ -69,7 +75,8 @@ class OpenDesignApi {
             PROVIDER_OPENAI to "https://api.openai.com/v1",
             PROVIDER_GOOGLE to "https://generativelanguage.googleapis.com/v1beta",
             PROVIDER_OLLAMA to "http://10.0.2.2:11434/v1",
-            PROVIDER_MIMO to "http://10.0.2.2:11434/v1"
+            PROVIDER_MIMO to "http://10.0.2.2:11434/v1",
+            PROVIDER_LOCAL to "local"
         )
     }
 
