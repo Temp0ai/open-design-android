@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PreviewScreen(html: String, onBack: () -> Unit) {
     val context = LocalContext.current
