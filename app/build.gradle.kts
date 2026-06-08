@@ -103,7 +103,6 @@ dependencies {
     
     // MediaPipe LLM Inference (on-device AI)
     implementation("com.google.mediapipe:tasks-genai:0.10.22")
-    implementation("com.google.mediapipe:tasks-vision:0.10.22")
     
     // Debug
     debugImplementation("androidx.compose.ui:ui-tooling")
