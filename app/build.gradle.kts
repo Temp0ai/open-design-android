@@ -98,6 +98,10 @@ dependencies {
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
     
+    // ONNX Runtime for local AI inference
+    implementation("com.microsoft.onnxruntime:onnxruntime-android:1.19.0")
+    implementation("com.microsoft.onnxruntime:onnxruntime-extensions-android:0.10.0")
+    
     // Core KTX
     implementation("androidx.core:core-ktx:1.15.0")
     

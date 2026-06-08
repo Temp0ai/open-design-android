@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.opendesign.ai.LocalMnnEngine
 import com.opendesign.ai.MnnModel
+import com.opendesign.ai.OnnxInferenceEngine
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,6 +15,7 @@ import kotlinx.coroutines.launch
 class MediaViewModel(application: Application) : AndroidViewModel(application) {
 
     private val localEngine = LocalMnnEngine(application)
+    private val onnxEngine = OnnxInferenceEngine(application)
 
     private val _uiState = MutableStateFlow(MediaUiState())
     val uiState: StateFlow<MediaUiState> = _uiState.asStateFlow()
@@ -26,6 +28,7 @@ class MediaViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         loadModels()
+        onnxEngine.initialize()
     }
 
     private fun loadModels() {
@@ -46,20 +49,32 @@ class MediaViewModel(application: Application) : AndroidViewModel(application) {
             )
 
             try {
-                val result = localEngine.generateImage(prompt, width, height, steps)
+                // Try local ONNX inference first, fall back to cloud
+                val result = onnxEngine.generateImage(prompt, width, height, steps)
 
                 if (result.success && result.bitmap != null) {
                     _uiState.value = _uiState.value.copy(
                         isGenerating = false,
                         generatedBitmap = result.bitmap,
                         prompt = prompt,
-                        generationTimeMs = result.generationTimeMs
+                        generationTimeMs = result.inferenceTimeMs
                     )
                 } else {
-                    _uiState.value = _uiState.value.copy(
-                        isGenerating = false,
-                        error = result.error ?: "Failed to generate image"
-                    )
+                    // Fall back to cloud
+                    val cloudResult = localEngine.generateImage(prompt, width, height, steps)
+                    if (cloudResult.success && cloudResult.bitmap != null) {
+                        _uiState.value = _uiState.value.copy(
+                            isGenerating = false,
+                            generatedBitmap = cloudResult.bitmap,
+                            prompt = prompt,
+                            generationTimeMs = cloudResult.generationTimeMs
+                        )
+                    } else {
+                        _uiState.value = _uiState.value.copy(
+                            isGenerating = false,
+                            error = cloudResult.error ?: "Failed to generate image"
+                        )
+                    }
                 }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -78,14 +93,10 @@ class MediaViewModel(application: Application) : AndroidViewModel(application) {
                 generatedType = GeneratedType.VIDEO
             )
 
-            // For video, we'll use a different approach
-            // In the future, this will use CogVideoX or similar
             try {
-                // Generate a video URL using Pollinations.ai video endpoint
                 val encodedPrompt = java.net.URLEncoder.encode(prompt, "UTF-8")
                 val videoUrl = "https://video.pollinations.ai/prompt/$encodedPrompt"
-                
-                // Test if URL is accessible
+
                 val connection = java.net.URL(videoUrl).openConnection() as java.net.HttpURLConnection
                 connection.connectTimeout = 30000
                 connection.readTimeout = 60000
@@ -136,11 +147,11 @@ class MediaViewModel(application: Application) : AndroidViewModel(application) {
     fun downloadModel(model: MnnModel) {
         viewModelScope.launch {
             _downloadProgress.value = _downloadProgress.value + (model.id to 0f)
-            
+
             val success = localEngine.downloadModel(model) { progress ->
                 _downloadProgress.value = _downloadProgress.value + (model.id to progress)
             }
-            
+
             if (success) {
                 _uiState.value = _uiState.value.copy(
                     downloadedModelId = model.id
@@ -150,7 +161,7 @@ class MediaViewModel(application: Application) : AndroidViewModel(application) {
                     error = "Failed to download ${model.name}"
                 )
             }
-            
+
             _downloadProgress.value = _downloadProgress.value - model.id
         }
     }
@@ -165,6 +176,11 @@ class MediaViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setError(error: String) {
         _uiState.value = _uiState.value.copy(error = error)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        onnxEngine.release()
     }
 }
 
@@ -184,3 +200,4 @@ enum class GeneratedType {
     VIDEO,
     MUSIC
 }
+
