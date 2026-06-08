@@ -24,7 +24,12 @@ import com.opendesign.data.model.Skill
 import com.opendesign.ui.viewmodel.HomeViewModel
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
+fun HomeScreen(
+    viewModel: HomeViewModel = viewModel(),
+    onSkillClick: (Skill) -> Unit = {},
+    onDesignSystemClick: (DesignSystem) -> Unit = {},
+    onSearch: (String) -> Unit = {}
+) {
     val projects by viewModel.projects.collectAsState()
     val recentArtifacts by viewModel.recentArtifacts.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
@@ -56,6 +61,16 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("Describe what you want to create...") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                trailingIcon = {
+                    if (searchQuery.isNotBlank()) {
+                        IconButton(onClick = { 
+                            onSearch(searchQuery)
+                            searchQuery = ""
+                        }) {
+                            Icon(Icons.Default.Send, contentDescription = "Search")
+                        }
+                    }
+                },
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor = MaterialTheme.colorScheme.outline,
@@ -77,7 +92,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     DEFAULT_SKILLS.forEach { skill ->
-                        SkillCard(skill)
+                        SkillCard(skill) { onSkillClick(skill) }
                     }
                 }
             }
@@ -100,7 +115,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 row.forEach { system ->
-                    DesignSystemCard(system, Modifier.weight(1f))
+                    DesignSystemCard(system, Modifier.weight(1f)) { onDesignSystemClick(system) }
                 }
                 if (row.size < 2) {
                     Spacer(modifier = Modifier.weight(1f))
@@ -164,11 +179,11 @@ private val DEFAULT_DESIGN_SYSTEMS = listOf(
 )
 
 @Composable
-fun SkillCard(skill: Skill) {
+fun SkillCard(skill: Skill, onClick: () -> Unit = {}) {
     Card(
         modifier = Modifier
             .width(120.dp)
-            .clickable { },
+            .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
@@ -202,7 +217,7 @@ fun SkillCard(skill: Skill) {
 }
 
 @Composable
-fun DesignSystemCard(system: DesignSystem, modifier: Modifier = Modifier) {
+fun DesignSystemCard(system: DesignSystem, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
     val color = try {
         Color(android.graphics.Color.parseColor(system.color))
     } catch (_: Exception) {
@@ -210,7 +225,7 @@ fun DesignSystemCard(system: DesignSystem, modifier: Modifier = Modifier) {
     }
 
     Card(
-        modifier = modifier.clickable { },
+        modifier = modifier.clickable { onClick() },
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)

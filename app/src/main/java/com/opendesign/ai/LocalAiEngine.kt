@@ -25,25 +25,41 @@ class LocalAiEngine(private val context: Context) {
                 id = "gemma-2b-it-q4",
                 name = "Gemma 2B (Fast)",
                 description = "Google's small model. ~1.5GB download.",
-                url = "https://huggingface.co/nicoboss/gemma-2b-it-gguf/resolve/main/gemma-2b-it-q4_k_m.gguf",
-                fileName = "gemma-2b-it-q4_k_m.gguf",
+                url = "https://huggingface.co/TheBloke/gemma-2b-it-GGUF/resolve/main/gemma-2b-it.Q4_K_M.gguf",
+                fileName = "gemma-2b-it.Q4_K_M.gguf",
                 sizeMb = 1500
             ),
             ModelInfo(
                 id = "phi-3-mini-q4",
                 name = "Phi-3 Mini (Balanced)",
                 description = "Microsoft's compact model. ~2.4GB download.",
-                url = "https://huggingface.co/nicoboss/Phi-3-mini-4k-instruct-gguf/resolve/main/phi-3-mini-4k-instruct-q4_k_m.gguf",
-                fileName = "phi-3-mini-4k-instruct-q4_k_m.gguf",
+                url = "https://huggingface.co/TheBloke/Phi-3-mini-4k-instruct-GGUF/resolve/main/Phi-3-mini-4k-instruct.Q4_K_M.gguf",
+                fileName = "Phi-3-mini-4k-instruct.Q4_K_M.gguf",
                 sizeMb = 2400
             ),
             ModelInfo(
                 id = "qwen2.5-1.5b-q4",
                 name = "Qwen 2.5 1.5B (Tiny)",
                 description = "Alibaba's tiny model. ~1GB download.",
-                url = "https://huggingface.co/nicoboss/qwen2.5-1.5b-instruct-gguf/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf",
-                fileName = "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+                url = "https://huggingface.co/TheBloke/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct.Q4_K_M.gguf",
+                fileName = "qwen2.5-1.5b-instruct.Q4_K_M.gguf",
                 sizeMb = 1000
+            ),
+            ModelInfo(
+                id = "mimo-v2.4-q4",
+                name = "MiMo v2.4 (Fast)",
+                description = "Xiaomi's MiMo model. ~4.5GB download.",
+                url = "https://huggingface.co/TheBloke/MiMo-7B-RL-GGUF/resolve/main/MiMo-7B-RL.Q4_K_M.gguf",
+                fileName = "MiMo-7B-RL.Q4_K_M.gguf",
+                sizeMb = 4500
+            ),
+            ModelInfo(
+                id = "kimi-k2.6-q4",
+                name = "Kimi K2.6 (Advanced)",
+                description = "Moonshot AI's Kimi model. ~4.5GB download.",
+                url = "https://huggingface.co/TheBloke/Kimi-k2-Instruct-GGUF/resolve/main/Kimi-k2-Instruct.Q4_K_M.gguf",
+                fileName = "Kimi-k2-Instruct.Q4_K_M.gguf",
+                sizeMb = 4500
             )
         )
 

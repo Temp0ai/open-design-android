@@ -114,27 +114,36 @@ class MediaGenerator(private val context: Context) {
 
     /**
      * Generate AI video from text prompt
-     * Returns URL to video file
+     * Pollinations.ai video generation: returns video URL directly
      */
     suspend fun generateVideo(
         prompt: String
     ): VideoGenerationResult = withContext(Dispatchers.IO) {
         try {
             val encodedPrompt = URLEncoder.encode(prompt, "UTF-8")
-            val url = "$POLLINATIONS_VIDEO_URL/$encodedPrompt"
+            val url = "https://video.pollinations.ai/prompt/${encodedPrompt}?n=8&model=sora"
 
-            // Test if URL is accessible
+            // Verify the URL is reachable by doing a GET (not HEAD)
             val connection = URL(url).openConnection() as HttpURLConnection
             connection.connectTimeout = 30000
-            connection.readTimeout = 60000
-            connection.requestMethod = "HEAD"
+            connection.readTimeout = 120000
+            connection.requestMethod = "GET"
             connection.connect()
+
+            val responseCode = connection.responseCode
             connection.disconnect()
 
-            VideoGenerationResult(
-                success = true,
-                url = url
-            )
+            if (responseCode == 200) {
+                VideoGenerationResult(
+                    success = true,
+                    url = url
+                )
+            } else {
+                VideoGenerationResult(
+                    success = false,
+                    error = "Video generation returned code $responseCode"
+                )
+            }
         } catch (e: Exception) {
             VideoGenerationResult(
                 success = false,
@@ -145,18 +154,36 @@ class MediaGenerator(private val context: Context) {
 
     /**
      * Generate AI music from text prompt
+     * Pollinations.ai music generation: returns music URL directly
      */
     suspend fun generateMusic(
         prompt: String
     ): VideoGenerationResult = withContext(Dispatchers.IO) {
         try {
             val encodedPrompt = URLEncoder.encode(prompt, "UTF-8")
-            val url = "$POLLINATIONS_MUSIC_URL/$encodedPrompt"
+            val url = "https://music.pollinations.ai/prompt/${encodedPrompt}"
 
-            VideoGenerationResult(
-                success = true,
-                url = url
-            )
+            // Verify the URL is reachable
+            val connection = URL(url).openConnection() as HttpURLConnection
+            connection.connectTimeout = 30000
+            connection.readTimeout = 120000
+            connection.requestMethod = "GET"
+            connection.connect()
+
+            val responseCode = connection.responseCode
+            connection.disconnect()
+
+            if (responseCode == 200) {
+                VideoGenerationResult(
+                    success = true,
+                    url = url
+                )
+            } else {
+                VideoGenerationResult(
+                    success = false,
+                    error = "Music generation returned code $responseCode"
+                )
+            }
         } catch (e: Exception) {
             VideoGenerationResult(
                 success = false,

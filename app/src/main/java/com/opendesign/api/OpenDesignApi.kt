@@ -35,12 +35,16 @@ class OpenDesignApi {
         const val PROVIDER_LOCAL = "local"
         const val PROVIDER_GROQ = "groq"
         const val PROVIDER_POLLINATIONS = "pollinations"
+        const val PROVIDER_KIMI = "kimi"
+        const val PROVIDER_DEEPSEEK = "deepseek"
 
         val PROVIDER_MODELS = mapOf(
             PROVIDER_LOCAL to listOf(
                 "gemma-2b-it-q4",
                 "phi-3-mini-q4",
-                "qwen2.5-1.5b-q4"
+                "qwen2.5-1.5b-q4",
+                "mimo-v2.4-q4",
+                "kimi-k2.6-q4"
             ),
             PROVIDER_ANTHROPIC to listOf(
                 "claude-3-5-sonnet-20241022",
@@ -66,9 +70,20 @@ class OpenDesignApi {
                 "deepseek-coder"
             ),
             PROVIDER_MIMO to listOf(
+                "mimo-v2.4",
+                "mimo-v2.5",
                 "MiMo-7B-RL",
-                "MiMo-7B-SFT",
-                "mimo-v2.5"
+                "MiMo-7B-SFT"
+            ),
+            PROVIDER_KIMI to listOf(
+                "kimi-k2.6",
+                "moonshot-v1-8k",
+                "moonshot-v1-32k",
+                "moonshot-v1-128k"
+            ),
+            PROVIDER_DEEPSEEK to listOf(
+                "deepseek-chat",
+                "deepseek-coder"
             ),
             PROVIDER_GROQ to listOf(
                 "llama-3.1-8b-instant",
@@ -88,10 +103,12 @@ class OpenDesignApi {
             PROVIDER_OPENAI to "https://api.openai.com/v1",
             PROVIDER_GOOGLE to "https://generativelanguage.googleapis.com/v1beta",
             PROVIDER_OLLAMA to "http://10.0.2.2:11434/v1",
-            PROVIDER_MIMO to "http://10.0.2.2:11434/v1",
+            PROVIDER_MIMO to "https://api.mimo.ai/v1",
             PROVIDER_LOCAL to "local",
             PROVIDER_GROQ to "https://api.groq.com/openai/v1",
-            PROVIDER_POLLINATIONS to "https://text.pollinations.ai"
+            PROVIDER_POLLINATIONS to "https://text.pollinations.ai",
+            PROVIDER_KIMI to "https://api.moonshot.cn/v1",
+            PROVIDER_DEEPSEEK to "https://api.deepseek.com/v1"
         )
     }
 

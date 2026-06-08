@@ -66,7 +66,19 @@ fun MainApp() {
             startDestination = Screen.Home.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Screen.Home.route) { HomeScreen() }
+            composable(Screen.Home.route) {
+                HomeScreen(
+                    onSkillClick = { skill ->
+                        navController.navigate(Screen.Create.route)
+                    },
+                    onDesignSystemClick = { system ->
+                        navController.navigate(Screen.Create.route)
+                    },
+                    onSearch = { query ->
+                        navController.navigate(Screen.Create.route)
+                    }
+                )
+            }
             composable(Screen.Create.route) { CreateScreen() }
             composable(Screen.Media.route) { MediaScreen() }
             composable(Screen.Gallery.route) { GalleryScreen() }

@@ -67,7 +67,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
                 SettingsSelectRow(
                     label = "Provider",
                     value = providerName,
-                    options = listOf("Local AI", "Ollama", "MiMo", "Groq (Free)", "Pollinations (Free)", "Anthropic", "OpenAI", "Google"),
+                    options = listOf("Local AI", "Ollama", "MiMo", "Kimi", "DeepSeek", "Groq (Free)", "Pollinations (Free)", "Anthropic", "OpenAI", "Google"),
                     onSelect = { provider ->
                         val slug = when (provider) {
                             "Local AI" -> "local"
@@ -133,7 +133,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
         }
 
         // Ollama/MiMo Setup
-        if (selectedProvider == "ollama" || selectedProvider == "mimo") {
+        if (selectedProvider == "ollama") {
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -198,8 +198,8 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
             }
         }
 
-        // Connection for cloud providers
-        if (selectedProvider != "local" && selectedProvider != "ollama" && selectedProvider != "mimo") {
+        // Connection for cloud providers (need API key)
+        if (selectedProvider != "local" && selectedProvider != "ollama") {
             item {
                 SettingsSection(title = "CONNECTION") {
                     SettingsInputRow(label = "Endpoint", value = apiEndpoint, onValueChange = {
