@@ -1,0 +1,908 @@
+[
+  {
+    "id": "_schema",
+    "name": "_Schema",
+    "description": "",
+    "color": "#6366f1"
+  },
+  {
+    "id": "agentic",
+    "name": "Agentic",
+    "description": "Bundled Open Design package for Agentic, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "airbnb",
+    "name": "Airbnb",
+    "description": "Bundled Open Design package for Airbnb, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "airtable",
+    "name": "Airtable",
+    "description": "Bundled Open Design package for Airtable, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "ant",
+    "name": "Ant",
+    "description": "Bundled Open Design package for Ant, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "apple",
+    "name": "Apple",
+    "description": "Bundled Open Design package for Apple, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "application",
+    "name": "Application",
+    "description": "Bundled Open Design package for Application, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "arc",
+    "name": "Arc Browser",
+    "description": "Bundled Open Design package for Arc Browser, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "artistic",
+    "name": "Artistic",
+    "description": "Bundled Open Design package for Artistic, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "atelier-zero",
+    "name": "Atelier Zero",
+    "description": "Bundled Open Design package for Atelier Zero, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "bento",
+    "name": "Bento",
+    "description": "Bundled Open Design package for Bento, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "binance",
+    "name": "Binance.US",
+    "description": "Bundled Open Design package for Binance.US, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "bmw-m",
+    "name": "BMW M",
+    "description": "Bundled Open Design package for BMW M, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "bmw",
+    "name": "BMW",
+    "description": "Bundled Open Design package for BMW, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "bold",
+    "name": "Bold",
+    "description": "Bundled Open Design package for Bold, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "brutalism",
+    "name": "Brutalism",
+    "description": "Bundled Open Design package for Brutalism, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "bugatti",
+    "name": "Bugatti",
+    "description": "Bundled Open Design package for Bugatti, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "cafe",
+    "name": "Cafe",
+    "description": "Bundled Open Design package for Cafe, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "cal",
+    "name": "Cal.com",
+    "description": "Bundled Open Design package for Cal.com, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "canva",
+    "name": "Canva",
+    "description": "Bundled Open Design package for Canva, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "cisco",
+    "name": "Cisco",
+    "description": "Bundled Open Design package for Cisco, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "claude",
+    "name": "Claude (Anthropic)",
+    "description": "Bundled Open Design package for Claude (Anthropic), derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "clay",
+    "name": "Clay",
+    "description": "Bundled Open Design package for Clay, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "claymorphism",
+    "name": "Claymorphism",
+    "description": "Bundled Open Design package for Claymorphism, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "clean",
+    "name": "Clean",
+    "description": "Bundled Open Design package for Clean, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "clickhouse",
+    "name": "ClickHouse",
+    "description": "Bundled Open Design package for ClickHouse, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "cohere",
+    "name": "Cohere",
+    "description": "Bundled Open Design package for Cohere, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "coinbase",
+    "name": "Coinbase",
+    "description": "Bundled Open Design package for Coinbase, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "colorful",
+    "name": "Colorful",
+    "description": "Bundled Open Design package for Colorful, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "composio",
+    "name": "Composio",
+    "description": "Bundled Open Design package for Composio, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "contemporary",
+    "name": "Contemporary",
+    "description": "Bundled Open Design package for Contemporary, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "corporate",
+    "name": "Corporate",
+    "description": "Bundled Open Design package for Corporate, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "cosmic",
+    "name": "Cosmic",
+    "description": "Bundled Open Design package for Cosmic, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "creative",
+    "name": "Creative",
+    "description": "Bundled Open Design package for Creative, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "cursor",
+    "name": "Cursor",
+    "description": "Bundled Open Design package for Cursor, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "dashboard",
+    "name": "Dashboard",
+    "description": "Bundled Open Design package for Dashboard, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "default",
+    "name": "Neutral Modern",
+    "description": "Bundled Open Design package for Neutral Modern, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "discord",
+    "name": "Discord",
+    "description": "Bundled Open Design package for Discord, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "dithered",
+    "name": "Dithered",
+    "description": "Bundled Open Design package for Dithered, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "doodle",
+    "name": "Doodle",
+    "description": "Bundled Open Design package for Doodle, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "dramatic",
+    "name": "Dramatic",
+    "description": "Bundled Open Design package for Dramatic, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "duolingo",
+    "name": "Duolingo",
+    "description": "Bundled Open Design package for Duolingo, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "editorial",
+    "name": "Editorial",
+    "description": "Bundled Open Design package for Editorial, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "elegant",
+    "name": "Elegant",
+    "description": "Bundled Open Design package for Elegant, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "elevenlabs",
+    "name": "ElevenLabs",
+    "description": "Bundled Open Design package for ElevenLabs, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "energetic",
+    "name": "Energetic",
+    "description": "Bundled Open Design package for Energetic, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "enterprise",
+    "name": "Enterprise",
+    "description": "Bundled Open Design package for Enterprise, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "expo",
+    "name": "Expo",
+    "description": "Bundled Open Design package for Expo, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "expressive",
+    "name": "Expressive",
+    "description": "Bundled Open Design package for Expressive, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "fantasy",
+    "name": "Fantasy",
+    "description": "Bundled Open Design package for Fantasy, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "ferrari",
+    "name": "Ferrari",
+    "description": "Bundled Open Design package for Ferrari, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "figma",
+    "name": "Figma",
+    "description": "Bundled Open Design package for Figma, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "flat",
+    "name": "Flat",
+    "description": "Bundled Open Design package for Flat, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "framer",
+    "name": "Framer",
+    "description": "Bundled Open Design package for Framer, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "friendly",
+    "name": "Friendly",
+    "description": "Bundled Open Design package for Friendly, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "futuristic",
+    "name": "Futuristic",
+    "description": "Bundled Open Design package for Futuristic, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "github",
+    "name": "GitHub",
+    "description": "Bundled Open Design package for GitHub, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "glassmorphism",
+    "name": "Glassmorphism",
+    "description": "Bundled Open Design package for Glassmorphism, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "gradient",
+    "name": "Gradient",
+    "description": "Bundled Open Design package for Gradient, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "hashicorp",
+    "name": "HashiCorp",
+    "description": "Bundled Open Design package for HashiCorp, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "hud",
+    "name": "HUD Design System",
+    "description": "Bundled Open Design package for HUD Design System, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "huggingface",
+    "name": "Hugging Face",
+    "description": "Bundled Open Design package for Hugging Face, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "ibm",
+    "name": "IBM",
+    "description": "Bundled Open Design package for IBM, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "intercom",
+    "name": "Intercom",
+    "description": "Bundled Open Design package for Intercom, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "kami",
+    "name": "kami (\u7d19 / \u7eb8)",
+    "description": "Bundled Open Design package for kami (\u7d19 / \u7eb8), derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "kraken",
+    "name": "Kraken",
+    "description": "Bundled Open Design package for Kraken, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "lamborghini",
+    "name": "Lamborghini",
+    "description": "Bundled Open Design package for Lamborghini, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "levels",
+    "name": "Levels",
+    "description": "Bundled Open Design package for Levels, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "linear-app",
+    "name": "Linear",
+    "description": "Bundled Open Design package for Linear, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "lingo",
+    "name": "Lingo",
+    "description": "Bundled Open Design package for Lingo, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "loom",
+    "name": "Loom Design System",
+    "description": "Bundled Open Design package for Loom Design System, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "lovable",
+    "name": "Lovable",
+    "description": "Bundled Open Design package for Lovable, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "luxury",
+    "name": "Luxury",
+    "description": "Bundled Open Design package for Luxury, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "mastercard",
+    "name": "Mastercard",
+    "description": "Bundled Open Design package for Mastercard, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "material",
+    "name": "Material",
+    "description": "Bundled Open Design package for Material, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "meta",
+    "name": "Meta (Store)",
+    "description": "Bundled Open Design package for Meta (Store), derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "minimal",
+    "name": "Minimal",
+    "description": "Bundled Open Design package for Minimal, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "minimax",
+    "name": "MiniMax",
+    "description": "Bundled Open Design package for MiniMax, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "mintlify",
+    "name": "Mintlify",
+    "description": "Bundled Open Design package for Mintlify, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "miro",
+    "name": "Miro",
+    "description": "Bundled Open Design package for Miro, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "mission-control",
+    "name": "Mission Control Design System",
+    "description": "Bundled Open Design package for Mission Control Design System, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "mistral-ai",
+    "name": "Mistral AI",
+    "description": "Bundled Open Design package for Mistral AI, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "modern",
+    "name": "Modern",
+    "description": "Bundled Open Design package for Modern, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "mongodb",
+    "name": "MongoDB",
+    "description": "Bundled Open Design package for MongoDB, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "mono",
+    "name": "Mono",
+    "description": "Bundled Open Design package for Mono, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "neobrutalism",
+    "name": "Neobrutalism",
+    "description": "Bundled Open Design package for Neobrutalism, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "neon",
+    "name": "Neon",
+    "description": "Bundled Open Design package for Neon, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "neumorphism",
+    "name": "Neumorphism",
+    "description": "Bundled Open Design package for Neumorphism, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "nike",
+    "name": "Nike",
+    "description": "Bundled Open Design package for Nike, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "notion",
+    "name": "Notion",
+    "description": "Bundled Open Design package for Notion, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "nvidia",
+    "name": "NVIDIA",
+    "description": "Bundled Open Design package for NVIDIA, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "ollama",
+    "name": "Ollama",
+    "description": "Bundled Open Design package for Ollama, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "openai",
+    "name": "OpenAI",
+    "description": "Bundled Open Design package for OpenAI, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "opencode-ai",
+    "name": "OpenCode",
+    "description": "Bundled Open Design package for OpenCode, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "pacman",
+    "name": "Pacman",
+    "description": "Bundled Open Design package for Pacman, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "paper",
+    "name": "Paper",
+    "description": "Bundled Open Design package for Paper, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "perplexity",
+    "name": "Perplexity AI",
+    "description": "Bundled Open Design package for Perplexity AI, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "perspective",
+    "name": "Perspective",
+    "description": "Bundled Open Design package for Perspective, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "pinterest",
+    "name": "Pinterest",
+    "description": "Bundled Open Design package for Pinterest, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "playstation",
+    "name": "PlayStation",
+    "description": "Bundled Open Design package for PlayStation, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "posthog",
+    "name": "PostHog",
+    "description": "Bundled Open Design package for PostHog, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "premium",
+    "name": "Premium",
+    "description": "Bundled Open Design package for Premium, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "professional",
+    "name": "Professional",
+    "description": "Bundled Open Design package for Professional, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "publication",
+    "name": "Publication",
+    "description": "Bundled Open Design package for Publication, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "raycast",
+    "name": "Raycast",
+    "description": "Bundled Open Design package for Raycast, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "refined",
+    "name": "Refined",
+    "description": "Bundled Open Design package for Refined, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "renault",
+    "name": "Renault",
+    "description": "Bundled Open Design package for Renault, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "replicate",
+    "name": "Replicate",
+    "description": "Bundled Open Design package for Replicate, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "resend",
+    "name": "Resend",
+    "description": "Bundled Open Design package for Resend, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "retro",
+    "name": "Retro",
+    "description": "Bundled Open Design package for Retro, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "revolut",
+    "name": "Revolut",
+    "description": "Bundled Open Design package for Revolut, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "runwayml",
+    "name": "Runway",
+    "description": "Bundled Open Design package for Runway, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "sanity",
+    "name": "Sanity",
+    "description": "Bundled Open Design package for Sanity, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "sentry",
+    "name": "Sentry",
+    "description": "Bundled Open Design package for Sentry, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "shadcn",
+    "name": "Shadcn",
+    "description": "Bundled Open Design package for Shadcn, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "shopify",
+    "name": "Shopify",
+    "description": "Bundled Open Design package for Shopify, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "simple",
+    "name": "Simple",
+    "description": "Bundled Open Design package for Simple, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "skeumorphism",
+    "name": "Skeumorphism",
+    "description": "Bundled Open Design package for Skeumorphism, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "slack",
+    "name": "Slack",
+    "description": "Bundled Open Design package for Slack, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "sleek",
+    "name": "Sleek",
+    "description": "Bundled Open Design package for Sleek, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "spacex",
+    "name": "SpaceX",
+    "description": "Bundled Open Design package for SpaceX, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "spacious",
+    "name": "Spacious",
+    "description": "Bundled Open Design package for Spacious, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "spotify",
+    "name": "Spotify",
+    "description": "Bundled Open Design package for Spotify, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "starbucks",
+    "name": "Starbucks",
+    "description": "Bundled Open Design package for Starbucks, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "storytelling",
+    "name": "Storytelling",
+    "description": "Bundled Open Design package for Storytelling, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "stripe",
+    "name": "Stripe",
+    "description": "Bundled Open Design package for Stripe, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "supabase",
+    "name": "Supabase",
+    "description": "Bundled Open Design package for Supabase, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "superhuman",
+    "name": "Superhuman",
+    "description": "Bundled Open Design package for Superhuman, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "tesla",
+    "name": "Tesla",
+    "description": "Bundled Open Design package for Tesla, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "tetris",
+    "name": "Tetris",
+    "description": "Bundled Open Design package for Tetris, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "theverge",
+    "name": "The Verge",
+    "description": "Bundled Open Design package for The Verge, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "together-ai",
+    "name": "Together AI",
+    "description": "Bundled Open Design package for Together AI, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "totality-festival",
+    "name": "Totality Festival",
+    "description": "Bundled Open Design package for Totality Festival, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "trading-terminal",
+    "name": "Trading Terminal Design System",
+    "description": "Bundled Open Design package for Trading Terminal Design System, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "uber",
+    "name": "Uber",
+    "description": "Bundled Open Design package for Uber, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "urdu",
+    "name": "Urdu Modern (Indus Script System)",
+    "description": "Bundled Open Design package for Urdu Modern (Indus Script System), derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "vercel",
+    "name": "Vercel",
+    "description": "Bundled Open Design package for Vercel, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "vibrant",
+    "name": "Vibrant",
+    "description": "Bundled Open Design package for Vibrant, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "vintage",
+    "name": "Vintage",
+    "description": "Bundled Open Design package for Vintage, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "vodafone",
+    "name": "Vodafone",
+    "description": "Bundled Open Design package for Vodafone, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "voltagent",
+    "name": "VoltAgent",
+    "description": "Bundled Open Design package for VoltAgent, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "warm-editorial",
+    "name": "Warm Editorial",
+    "description": "Bundled Open Design package for Warm Editorial, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "warp",
+    "name": "Warp",
+    "description": "Bundled Open Design package for Warp, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "webex",
+    "name": "Webex",
+    "description": "Bundled Open Design package for Webex, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "webflow",
+    "name": "Webflow",
+    "description": "Bundled Open Design package for Webflow, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "wechat",
+    "name": "WeChat Design System",
+    "description": "Bundled Open Design package for WeChat Design System, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "wired",
+    "name": "WIRED",
+    "description": "Bundled Open Design package for WIRED, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "wise",
+    "name": "Wise",
+    "description": "Bundled Open Design package for Wise, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "x-ai",
+    "name": "xAI",
+    "description": "Bundled Open Design package for xAI, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "xiaohongshu",
+    "name": "Xiaohongshu",
+    "description": "Bundled Open Design package for Xiaohongshu, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  },
+  {
+    "id": "zapier",
+    "name": "Zapier",
+    "description": "Bundled Open Design package for Zapier, derived from curated DESIGN.md, tokens.css, and components.html fixtures.",
+    "color": "#6366f1"
+  }
+]

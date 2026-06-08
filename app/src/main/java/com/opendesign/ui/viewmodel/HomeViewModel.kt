@@ -4,7 +4,9 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.opendesign.data.model.Artifact
+import com.opendesign.data.model.DesignSystem
 import com.opendesign.data.model.Project
+import com.opendesign.data.model.Skill
 import com.opendesign.data.repository.DesignRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -12,6 +14,9 @@ import kotlinx.coroutines.launch
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = DesignRepository(application)
+
+    val designSystems: StateFlow<List<DesignSystem>> = MutableStateFlow(repository.getDesignSystems())
+    val skills: StateFlow<List<Skill>> = MutableStateFlow(repository.getSkills())
 
     val projects: StateFlow<List<Project>> = repository.getAllProjects()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())

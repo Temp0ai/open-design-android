@@ -8,6 +8,7 @@ import com.opendesign.data.db.ProjectEntity
 import com.opendesign.data.model.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.json.*
 import java.util.UUID
 
 class DesignRepository(private val context: Context) {
@@ -98,22 +99,18 @@ class DesignRepository(private val context: Context) {
     // Assets loading
     private fun loadDesignSystemsFromAssets(): List<DesignSystem> {
         return try {
-            val files = context.assets.list("design-systems") ?: emptyArray()
-            files.mapNotNull { dir ->
-                try {
-                    val designMd = context.assets.open("design-systems/$dir/DESIGN.md").bufferedReader().use { it.readText() }
-                    val name = dir.split("-").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
-                    DesignSystem(
-                        id = dir,
-                        name = name,
-                        slug = dir,
-                        description = designMd.take(200),
-                        designMd = designMd,
-                        category = "General"
-                    )
-                } catch (_: Exception) {
-                    null
-                }
+            val json = context.assets.open("design-systems/metadata.json").bufferedReader().use { it.readText() }
+            val arr = kotlinx.serialization.json.Json.parseToJsonElement(json).jsonArray
+            arr.map { el ->
+                val obj = el.jsonObject
+                DesignSystem(
+                    id = obj["id"]?.jsonPrimitive?.content ?: "",
+                    name = obj["name"]?.jsonPrimitive?.content ?: "",
+                    slug = obj["id"]?.jsonPrimitive?.content ?: "",
+                    description = obj["description"]?.jsonPrimitive?.content ?: "",
+                    color = obj["color"]?.jsonPrimitive?.content ?: "#6366f1",
+                    category = "Design System"
+                )
             }
         } catch (_: Exception) {
             getDefaultDesignSystems()
@@ -122,20 +119,26 @@ class DesignRepository(private val context: Context) {
 
     private fun loadSkillsFromAssets(): List<Skill> {
         return try {
-            val files = context.assets.list("skills") ?: emptyArray()
-            files.mapNotNull { dir ->
-                try {
-                    val skillMd = context.assets.open("skills/$dir/SKILL.md").bufferedReader().use { it.readText() }
-                    val name = dir.split("-").joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
-                    Skill(
-                        id = dir,
-                        name = name,
-                        slug = dir,
-                        skillMd = skillMd
-                    )
-                } catch (_: Exception) {
-                    null
-                }
+            val json = context.assets.open("skills/metadata.json").bufferedReader().use { it.readText() }
+            val arr = kotlinx.serialization.json.Json.parseToJsonElement(json).jsonArray
+            arr.map { el ->
+                val obj = el.jsonObject
+                val id = obj["id"]?.jsonPrimitive?.content ?: ""
+                val category = obj["category"]?.jsonPrimitive?.content ?: "other"
+                Skill(
+                    id = id,
+                    name = obj["name"]?.jsonPrimitive?.content ?: id,
+                    slug = id,
+                    mode = when (category) {
+                        "prototype" -> "prototype"
+                        "deck" -> "deck"
+                        "marketing" -> "image"
+                        "creative" -> "image"
+                        else -> "prototype"
+                    },
+                    scenario = category,
+                    description = obj["description"]?.jsonPrimitive?.content ?: ""
+                )
             }
         } catch (_: Exception) {
             getDefaultSkills()

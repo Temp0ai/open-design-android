@@ -5,6 +5,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.opendesign.data.model.DesignSystem
@@ -30,9 +34,23 @@ fun HomeScreen(
     onDesignSystemClick: (DesignSystem) -> Unit = {},
     onSearch: (String) -> Unit = {}
 ) {
-    val projects by viewModel.projects.collectAsState()
+    val designSystems by viewModel.designSystems.collectAsState()
+    val skills by viewModel.skills.collectAsState()
     val recentArtifacts by viewModel.recentArtifacts.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
+    var showAllDesignSystems by remember { mutableStateOf(false) }
+    var showAllSkills by remember { mutableStateOf(false) }
+    var selectedCategory by remember { mutableStateOf("All") }
+
+    val categories = listOf("All", "Design System", "Style", "Brand", "Industry")
+    val filteredDesignSystems = if (selectedCategory == "All") designSystems
+        else designSystems.filter { it.category.contains(selectedCategory, ignoreCase = true) }
+
+    val filteredSkills = if (selectedCategory == "All") skills
+        else skills.filter { it.scenario.contains(selectedCategory, ignoreCase = true) }
+
+    val visibleDesignSystems = if (showAllDesignSystems) filteredDesignSystems else filteredDesignSystems.take(12)
+    val visibleSkills = if (showAllSkills) filteredSkills else filteredSkills.take(12)
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -63,7 +81,7 @@ fun HomeScreen(
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = {
                     if (searchQuery.isNotBlank()) {
-                        IconButton(onClick = { 
+                        IconButton(onClick = {
                             onSearch(searchQuery)
                             searchQuery = ""
                         }) {
@@ -80,18 +98,44 @@ fun HomeScreen(
         }
 
         item {
+            Row(
+                modifier = Modifier.horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                categories.forEach { cat ->
+                    FilterChip(
+                        selected = selectedCategory == cat,
+                        onClick = { selectedCategory = cat },
+                        label = { Text(cat) }
+                    )
+                }
+            }
+        }
+
+        item {
             Column {
-                Text(
-                    text = "Skills",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Skills (${filteredSkills.size})",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (filteredSkills.size > 12) {
+                        TextButton(onClick = { showAllSkills = !showAllSkills }) {
+                            Text(if (showAllSkills) "Show Less" else "View All")
+                        }
+                    }
+                }
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     modifier = Modifier.horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    DEFAULT_SKILLS.forEach { skill ->
+                    visibleSkills.forEach { skill ->
                         SkillCard(skill) { onSkillClick(skill) }
                     }
                 }
@@ -100,16 +144,27 @@ fun HomeScreen(
 
         item {
             Column {
-                Text(
-                    text = "Design Systems",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Design Systems (${filteredDesignSystems.size})",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (filteredDesignSystems.size > 12) {
+                        TextButton(onClick = { showAllDesignSystems = !showAllDesignSystems }) {
+                            Text(if (showAllDesignSystems) "Show Less" else "View All")
+                        }
+                    }
+                }
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
 
-        items(DEFAULT_DESIGN_SYSTEMS.chunked(2)) { row ->
+        items(visibleDesignSystems.chunked(2)) { row ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -158,31 +213,11 @@ fun HomeScreen(
     }
 }
 
-private val DEFAULT_SKILLS = listOf(
-    Skill("web-prototype", "Web Prototype", "web-prototype", "prototype", "design", "24 templates"),
-    Skill("mobile-app", "Mobile App", "mobile-app", "prototype", "design", "18 templates"),
-    Skill("dashboard", "Dashboard", "dashboard", "prototype", "design", "12 templates"),
-    Skill("pitch-deck", "Pitch Deck", "pitch-deck", "deck", "marketing", "15 templates"),
-    Skill("social-post", "Social Post", "social-post", "image", "marketing", "8 templates"),
-    Skill("logo", "Logo Design", "logo", "image", "design", "6 templates"),
-)
-
-private val DEFAULT_DESIGN_SYSTEMS = listOf(
-    DesignSystem("linear", "Linear", "linear", "Clean, minimal SaaS", color = "#5E6AD2"),
-    DesignSystem("stripe", "Stripe", "stripe", "Modern fintech", color = "#635BFF"),
-    DesignSystem("vercel", "Vercel", "vercel", "Developer-first", color = "#000000"),
-    DesignSystem("airbnb", "Airbnb", "airbnb", "Warm, friendly", color = "#FF5A5F"),
-    DesignSystem("apple", "Apple", "apple", "Premium, refined", color = "#1D1D1F"),
-    DesignSystem("notion", "Notion", "notion", "Productivity", color = "#000000"),
-    DesignSystem("figma", "Figma", "figma", "Creative tools", color = "#A259FF"),
-    DesignSystem("supabase", "Supabase", "supabase", "Open source", color = "#3ECF8E"),
-)
-
 @Composable
 fun SkillCard(skill: Skill, onClick: () -> Unit = {}) {
     Card(
         modifier = Modifier
-            .width(120.dp)
+            .width(140.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -190,13 +225,17 @@ fun SkillCard(skill: Skill, onClick: () -> Unit = {}) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = when (skill.slug) {
-                    "web-prototype" -> "\uD83C\uDF10"
-                    "mobile-app" -> "\uD83D\uDCF1"
-                    "dashboard" -> "\uD83D\uDCCA"
-                    "pitch-deck" -> "\uD83D\uDCC1"
-                    "social-post" -> "\uD83D\uDCE3"
-                    "logo" -> "\uD83C\uDFA8"
+                text = when {
+                    skill.slug.contains("web") || skill.slug.contains("prototype") -> "\uD83C\uDF10"
+                    skill.slug.contains("mobile") || skill.slug.contains("app") -> "\uD83D\uDCF1"
+                    skill.slug.contains("dashboard") || skill.slug.contains("data") -> "\uD83D\uDCCA"
+                    skill.slug.contains("deck") || skill.slug.contains("slide") || skill.slug.contains("pitch") -> "\uD83D\uDCC1"
+                    skill.slug.contains("social") || skill.slug.contains("ad") -> "\uD83D\uDCE3"
+                    skill.slug.contains("logo") || skill.slug.contains("brand") -> "\uD83C\uDFA8"
+                    skill.slug.contains("doc") || skill.slug.contains("report") -> "\uD83D\uDCDD"
+                    skill.slug.contains("figma") -> "\uD83C\uDFA8"
+                    skill.slug.contains("music") || skill.slug.contains("video") -> "\uD83C\uDFA5"
+                    skill.slug.contains("3d") || skill.slug.contains("fal") -> "\uD83D\uDD2D"
                     else -> "\u2728"
                 },
                 style = MaterialTheme.typography.headlineMedium
@@ -205,13 +244,19 @@ fun SkillCard(skill: Skill, onClick: () -> Unit = {}) {
             Text(
                 text = skill.name,
                 style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
-            Text(
-                text = skill.description,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            if (skill.description.isNotBlank()) {
+                Text(
+                    text = skill.description,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }
@@ -247,13 +292,19 @@ fun DesignSystemCard(system: DesignSystem, modifier: Modifier = Modifier, onClic
                 Text(
                     text = system.name,
                     style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
-                Text(
-                    text = system.description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                if (system.description.isNotBlank()) {
+                    Text(
+                        text = system.description,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
     }
