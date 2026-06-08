@@ -10,8 +10,6 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
-import java.nio.FloatBuffer
-import java.util.Collections
 
 /**
  * ONNX Runtime-based local AI inference engine
@@ -26,6 +24,7 @@ class OnnxInferenceEngine(private val context: Context) {
     data class InferenceResult(
         val success: Boolean,
         val bitmap: Bitmap? = null,
+        val text: String? = null,
         val error: String? = null,
         val inferenceTimeMs: Long = 0
     )
@@ -205,7 +204,7 @@ class OnnxInferenceEngine(private val context: Context) {
             InferenceResult(
                 success = true,
                 bitmap = null,
-                error = null,
+                text = response,
                 inferenceTimeMs = inferenceTime
             )
         } catch (e: Exception) {
@@ -242,7 +241,7 @@ class OnnxInferenceEngine(private val context: Context) {
                 description = "Text-to-image, 512x512",
                 downloadUrl = "https://huggingface.co/onnx-community/stable-diffusion-v1-5/resolve/main/unet/model.onnx",
                 sizeMB = 3400,
-                type = ModelType.TEXT_TO_IMAGE
+                type = OnnxModelType.TEXT_TO_IMAGE
             ),
             OnnxModel(
                 id = "clip-text",
@@ -250,7 +249,7 @@ class OnnxInferenceEngine(private val context: Context) {
                 description = "Text encoding for SD",
                 downloadUrl = "https://huggingface.co/onnx-community/stable-diffusion-v1-5/resolve/main/text_encoder/model.onnx",
                 sizeMB = 500,
-                type = ModelType.TEXT_ENCODER
+                type = OnnxModelType.TEXT_ENCODER
             ),
             OnnxModel(
                 id = "vae-decoder",
@@ -258,7 +257,7 @@ class OnnxInferenceEngine(private val context: Context) {
                 description = "Image decoding for SD",
                 downloadUrl = "https://huggingface.co/onnx-community/stable-diffusion-v1-5/resolve/main/vae_decoder/model.onnx",
                 sizeMB = 160,
-                type = ModelType.VAE_DECODER
+                type = OnnxModelType.VAE_DECODER
             )
         )
     }
@@ -269,10 +268,10 @@ class OnnxInferenceEngine(private val context: Context) {
         val description: String,
         val downloadUrl: String,
         val sizeMB: Int,
-        val type: ModelType
+        val type: OnnxModelType
     )
 
-    enum class ModelType {
+    enum class OnnxModelType {
         TEXT_TO_IMAGE,
         TEXT_ENCODER,
         VAE_DECODER,

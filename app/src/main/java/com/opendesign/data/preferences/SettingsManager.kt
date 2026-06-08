@@ -46,15 +46,13 @@ class SettingsManager(private val context: Context) {
 
     fun getDeviceIp(): String {
         try {
-            val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-            val ip = wifiManager.connectionInfo.ipAddress
-            return String.format(
-                "%d.%d.%d.%d",
-                ip and 0xff,
-                ip shr 8 and 0xff,
-                ip shr 16 and 0xff,
-                ip shr 24 and 0xff
-            )
+            val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
+            val network = connectivityManager.activeNetwork ?: return "192.168.1.1"
+            val linkProperties = connectivityManager.getLinkProperties(network) ?: return "192.168.1.1"
+            val ip = linkProperties.linkAddresses.firstOrNull { 
+                it.address is java.net.Inet4Address 
+            }?.address?.hostAddress
+            return ip ?: "192.168.1.1"
         } catch (_: Exception) {
             return "192.168.1.1"
         }
