@@ -34,7 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.opendesign.ai.MediaGenerator
+import com.opendesign.ai.LocalMnnEngine
 import com.opendesign.ui.viewmodel.GeneratedType
 import com.opendesign.ui.viewmodel.MediaViewModel
 import kotlinx.coroutines.launch
@@ -45,18 +45,18 @@ fun MediaScreen(
     viewModel: MediaViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val models by viewModel.models.collectAsState()
+    val downloadProgress by viewModel.downloadProgress.collectAsState()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
     var selectedTab by remember { mutableStateOf(0) }
     var prompt by remember { mutableStateOf("") }
-    var selectedSize by remember { mutableStateOf(MediaGenerator.ImageSize.HD_SQUARE) }
-    var selectedStyle by remember { mutableStateOf(MediaGenerator.ImageStyle.REALISTIC) }
-    var showSizeMenu by remember { mutableStateOf(false) }
-    var showStyleMenu by remember { mutableStateOf(false) }
+    var showModelPicker by remember { mutableStateOf(false) }
+    var selectedModel by remember { mutableStateOf<LocalMnnEngine.MnnModel?>(null) }
 
-    val tabs = listOf("Images", "Videos", "Music")
+    val tabs = listOf("Images", "Videos", "Music", "Models")
 
     Scaffold(
         topBar = {
@@ -102,6 +102,7 @@ fun MediaScreen(
                                     0 -> Icons.Default.Image
                                     1 -> Icons.Default.Videocam
                                     2 -> Icons.Default.MusicNote
+                                    3 -> Icons.Default.Storage
                                     else -> Icons.Default.Image
                                 },
                                 contentDescription = title
@@ -111,94 +112,83 @@ fun MediaScreen(
                 }
             }
 
-            // Prompt Input
-            OutlinedTextField(
-                value = prompt,
-                onValueChange = { prompt = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                label = {
-                    Text(
-                        when (selectedTab) {
-                            0 -> "Describe your image..."
-                            1 -> "Describe your video..."
-                            2 -> "Describe your music..."
-                            else -> "Enter prompt..."
-                        }
-                    )
-                },
-                leadingIcon = {
-                    Icon(Icons.Default.Edit, contentDescription = null)
-                },
-                minLines = 2,
-                maxLines = 4
-            )
-
-            // Image Options (only for image tab)
-            if (selectedTab == 0) {
-                Row(
+            // Prompt Input (not for Models tab)
+            if (selectedTab < 3) {
+                OutlinedTextField(
+                    value = prompt,
+                    onValueChange = { prompt = it },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    // Size Selector
-                    Box {
-                        AssistChip(
-                            onClick = { showSizeMenu = true },
-                            label = { Text(selectedSize.name.replace("_", " ")) },
-                            leadingIcon = {
-                                Icon(Icons.Default.Crop, contentDescription = null, modifier = Modifier.size(18.dp))
+                        .padding(16.dp),
+                    label = {
+                        Text(
+                            when (selectedTab) {
+                                0 -> "Describe your image..."
+                                1 -> "Describe your video..."
+                                2 -> "Describe your music..."
+                                else -> "Enter prompt..."
                             }
                         )
-                        DropdownMenu(
-                            expanded = showSizeMenu,
-                            onDismissRequest = { showSizeMenu = false }
-                        ) {
-                            MediaGenerator.ImageSize.entries.forEach { size ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Column {
-                                            Text(size.name.replace("_", " "))
-                                            Text(
-                                                "${size.width}x${size.height}",
-                                                fontSize = 11.sp,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                                            )
-                                        }
-                                    },
-                                    onClick = {
-                                        selectedSize = size
-                                        showSizeMenu = false
-                                    }
-                                )
+                    },
+                    leadingIcon = {
+                        Icon(Icons.Default.Edit, contentDescription = null)
+                    },
+                    minLines = 2,
+                    maxLines = 4
+                )
+
+                // Model selector for images
+                if (selectedTab == 0) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        AssistChip(
+                            onClick = { showModelPicker = true },
+                            label = { 
+                                Text(selectedModel?.name ?: "Default Model") 
+                            },
+                            leadingIcon = {
+                                Icon(Icons.Default.Cpu, contentDescription = null, modifier = Modifier.size(18.dp))
                             }
-                        }
+                        )
                     }
 
-                    // Style Selector
-                    Box {
-                        AssistChip(
-                            onClick = { showStyleMenu = true },
-                            label = { Text(selectedStyle.name.replace("_", " ")) },
-                            leadingIcon = {
-                                Icon(Icons.Default.Style, contentDescription = null, modifier = Modifier.size(18.dp))
-                            }
-                        )
-                        DropdownMenu(
-                            expanded = showStyleMenu,
-                            onDismissRequest = { showStyleMenu = false }
-                        ) {
-                            MediaGenerator.ImageStyle.entries.forEach { style ->
-                                DropdownMenuItem(
-                                    text = { Text(style.name.replace("_", " ")) },
-                                    onClick = {
-                                        selectedStyle = style
-                                        showStyleMenu = false
+                    DropdownMenu(
+                        expanded = showModelPicker,
+                        onDismissRequest = { showModelPicker = false }
+                    ) {
+                        models.forEach { model ->
+                            DropdownMenuItem(
+                                text = {
+                                    Column {
+                                        Text(model.name, fontWeight = FontWeight.Bold)
+                                        Text(
+                                            model.description,
+                                            fontSize = 11.sp,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
                                     }
-                                )
-                            }
+                                },
+                                onClick = {
+                                    selectedModel = model
+                                    showModelPicker = false
+                                },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Cpu, contentDescription = null)
+                                },
+                                trailingIcon = {
+                                    if (viewModel.isModelDownloaded(model.id)) {
+                                        Icon(
+                                            Icons.Default.CheckCircle,
+                                            contentDescription = "Downloaded",
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                }
+                            )
                         }
                     }
                 }
@@ -206,44 +196,46 @@ fun MediaScreen(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            // Generate Button
-            Button(
-                onClick = {
-                    if (prompt.isNotBlank()) {
-                        when (selectedTab) {
-                            0 -> viewModel.generateImage(prompt, selectedSize, selectedStyle)
-                            1 -> viewModel.generateVideo(prompt)
-                            2 -> viewModel.generateMusic(prompt)
+            // Generate Button (not for Models tab)
+            if (selectedTab < 3) {
+                Button(
+                    onClick = {
+                        if (prompt.isNotBlank()) {
+                            when (selectedTab) {
+                                0 -> viewModel.generateImage(prompt)
+                                1 -> viewModel.generateVideo(prompt)
+                                2 -> viewModel.generateMusic(prompt)
+                            }
                         }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .height(56.dp),
+                    enabled = prompt.isNotBlank() && !uiState.isGenerating,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    if (uiState.isGenerating) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Generating...", color = MaterialTheme.colorScheme.onPrimary)
+                    } else {
+                        Icon(Icons.Default.AutoAwesome, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            when (selectedTab) {
+                                0 -> "Generate Image"
+                                1 -> "Generate Video"
+                                2 -> "Generate Music"
+                                else -> "Generate"
+                            }
+                        )
                     }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .height(56.dp),
-                enabled = prompt.isNotBlank() && !uiState.isGenerating,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
-            ) {
-                if (uiState.isGenerating) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Generating...", color = MaterialTheme.colorScheme.onPrimary)
-                } else {
-                    Icon(Icons.Default.AutoAwesome, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        when (selectedTab) {
-                            0 -> "Generate Image"
-                            1 -> "Generate Video"
-                            2 -> "Generate Music"
-                            else -> "Generate"
-                        }
-                    )
                 }
             }
 
@@ -279,6 +271,16 @@ fun MediaScreen(
                 }
             }
 
+            // Models Tab Content
+            if (selectedTab == 3) {
+                ModelsTab(
+                    models = models,
+                    downloadProgress = downloadProgress,
+                    isModelDownloaded = { viewModel.isModelDownloaded(it) },
+                    onDownloadModel = { viewModel.downloadModel(it) }
+                )
+            }
+
             // Generated Content Display
             uiState.generatedBitmap?.let { bitmap ->
                 Card(
@@ -297,6 +299,16 @@ fun MediaScreen(
                                 .clip(RoundedCornerShape(12.dp)),
                             contentScale = ContentScale.Crop
                         )
+
+                        // Generation info
+                        if (uiState.generationTimeMs > 0) {
+                            Text(
+                                text = "Generated in ${uiState.generationTimeMs / 1000.0}s",
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
 
                         Row(
                             modifier = Modifier
@@ -341,7 +353,7 @@ fun MediaScreen(
 
                             // Regenerate
                             IconButton(onClick = {
-                                viewModel.generateImage(prompt, selectedSize, selectedStyle)
+                                viewModel.generateImage(prompt)
                             }) {
                                 Icon(Icons.Default.Refresh, contentDescription = "Regenerate")
                             }
@@ -443,8 +455,8 @@ fun MediaScreen(
                 }
             }
 
-            // Quick Prompts
-            if (uiState.generatedBitmap == null && uiState.generatedUrl == null && !uiState.isGenerating) {
+            // Quick Prompts (only when no result)
+            if (uiState.generatedBitmap == null && uiState.generatedUrl == null && !uiState.isGenerating && selectedTab < 3) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -482,9 +494,9 @@ fun MediaScreen(
                                 "Upbeat electronic dance music for workout",
                                 "Relaxing ambient music for meditation",
                                 "Epic cinematic orchestral music for adventure",
-                "Chill lo-fi hip hop beats for studying",
-                "Smooth jazz piano for a coffee shop",
-                "Inspiring corporate background music"
+                                "Chill lo-fi hip hop beats for studying",
+                                "Smooth jazz piano for a coffee shop",
+                                "Inspiring corporate background music"
                             )
                             else -> emptyList()
                         }
@@ -512,6 +524,116 @@ fun MediaScreen(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+fun ModelsTab(
+    models: List<LocalMnnEngine.MnnModel>,
+    downloadProgress: Map<String, Float>,
+    isModelDownloaded: (String) -> Boolean,
+    onDownloadModel: (LocalMnnEngine.MnnModel) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "Download AI Models",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Text(
+            text = "Download models to run AI completely offline on your device. No internet required after download.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        models.forEach { model ->
+            val progress = downloadProgress[model.id]
+            val downloaded = isModelDownloaded(model.id)
+            
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Cpu,
+                            contentDescription = null,
+                            modifier = Modifier.size(40.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        
+                        Spacer(modifier = Modifier.width(12.dp))
+                        
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = model.name,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = model.description,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = "Size: ${model.sizeMB}MB",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        
+                        if (downloaded) {
+                            Icon(
+                                Icons.Default.CheckCircle,
+                                contentDescription = "Downloaded",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(32.dp)
+                            )
+                        } else if (progress != null) {
+                            CircularProgressIndicator(
+                                progress = { progress },
+                                modifier = Modifier.size(32.dp)
+                            )
+                        } else {
+                            IconButton(
+                                onClick = { onDownloadModel(model) }
+                            ) {
+                                Icon(
+                                    Icons.Default.Download,
+                                    contentDescription = "Download",
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
+                        }
+                    }
+                    
+                    if (progress != null && progress < 1.0f) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        LinearProgressIndicator(
+                            progress = { progress },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
         }
     }
 }
