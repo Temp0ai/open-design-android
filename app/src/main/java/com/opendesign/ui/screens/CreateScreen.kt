@@ -197,7 +197,7 @@ fun CreateScreen(viewModel: CreateViewModel = viewModel()) {
                     Spacer(modifier = Modifier.width(8.dp))
                 }
                 Text(
-                    text = if (uiState.isGenerating) "Generating..." else "Generate Design",
+                    text = if (uiState.isGenerating) "Generating..." else "Generate Design (Works Offline)",
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold
                 )
