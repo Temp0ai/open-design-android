@@ -42,51 +42,73 @@ class LocalMnnEngine(private val context: Context) {
         private const val MODELS_DIR = "mnn_models"
         private const val CACHE_DIR = "mnn_cache"
         
-        // Available MNN models for mobile inference
+        // Available free models from HuggingFace (no API key, no payment)
         val AVAILABLE_MODELS = listOf(
-            // Stable Diffusion 1.5 - Small and fast
+            // Stable Diffusion XL Turbo - Free on HuggingFace
             MnnModel(
-                id = "sd15-mobile",
-                name = "Stable Diffusion 1.5 Mobile",
-                description = "Fast image generation, 512x512, ~400MB",
-                modelUrl = "https://huggingface.co/segment-any-thing/mobile/resolve/main/sd15_mobile.mnn",
+                id = "sdxl-turbo-onnx",
+                name = "SDXL Turbo (ONNX)",
+                description = "Free image gen, 512x512, fast, ~2.3GB",
+                modelUrl = "https://huggingface.co/onnx-community/stable-diffusion-xl-base-1.0/tree/main",
                 tokenizerUrl = null,
                 vaeUrl = null,
-                sizeMB = 400,
+                sizeMB = 2300,
                 type = ModelType.TEXT_TO_IMAGE
             ),
-            // SDXL Turbo - Better quality
+            // Stable Diffusion 1.5 - Free
             MnnModel(
-                id = "sdxl-turbo",
-                name = "SDXL Turbo Mobile",
-                description = "High quality 1024x1024, ~1.2GB",
-                modelUrl = "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sdxl_turbo.mnn",
+                id = "sd15-onnx",
+                name = "Stable Diffusion 1.5 (ONNX)",
+                description = "Free image gen, 512x512, ~2.4GB",
+                modelUrl = "https://huggingface.co/onnx-community/stable-diffusion-v1-5/tree/main",
                 tokenizerUrl = null,
                 vaeUrl = null,
-                sizeMB = 1200,
+                sizeMB = 2400,
                 type = ModelType.TEXT_TO_IMAGE
             ),
-            // FLUX.1 Schnell - Fast and high quality
+            // FLUX.1 Schnell - Free Apache 2.0
             MnnModel(
                 id = "flux-schnell",
-                name = "FLUX.1 Schnell Mobile",
-                description = "Fast 1024x1024, ~2GB",
-                modelUrl = "https://huggingface.co/black-forest-labs/FLUX.1-schnell/resolve/main/flux1_schnell.mnn",
+                name = "FLUX.1 Schnell",
+                description = "Free fast image gen, 1024x1024, ~24GB (needs quantized)",
+                modelUrl = "https://huggingface.co/black-forest-labs/FLUX.1-schnell",
                 tokenizerUrl = null,
                 vaeUrl = null,
-                sizeMB = 2000,
+                sizeMB = 24000,
                 type = ModelType.TEXT_TO_IMAGE
             ),
-            // CogView - Chinese AI by Tsinghua
+            // CogVideoX-2B - Free by Tsinghua/THUDM
             MnnModel(
-                id = "cogview3",
-                name = "CogView3 Mobile",
-                description = "Chinese AI image generation, 1024x1024, ~1.5GB",
-                modelUrl = "https://huggingface.co/THUDM/CogView3/resolve/main/cogview3_mobile.mnn",
+                id = "cogvideox-2b",
+                name = "CogVideoX-2B (Free)",
+                description = "Free video gen by THUDM, 6s clips, ~5GB",
+                modelUrl = "https://huggingface.co/THUDM/CogVideoX-2b/tree/main",
                 tokenizerUrl = null,
                 vaeUrl = null,
-                sizeMB = 1500,
-                type = ModelType.TEXT_TO_IMAGE
+                sizeMB = 5000,
+                type = ModelType.TEXT_TO_VIDEO
+            ),
+            // Wan2.1 - Free by Alibaba
+            MnnModel(
+                id = "wan2.1-1.3b",
+                name = "Wan2.1-1.3B (Free)",
+                description = "Free video gen by Alibaba, ~3GB",
+                modelUrl = "https://huggingface.co/Wan-AI/Wan2.1-T2V-1.3B/tree/main",
+                tokenizerUrl = null,
+                vaeUrl = null,
+                sizeMB = 3000,
+                type = ModelType.TEXT_TO_VIDEO
+            ),
+            // HunyuanVideo - Free by Tencent
+            MnnModel(
+                id = "hunyuan-video",
+                name = "HunyuanVideo (Free)",
+                description = "Free video gen by Tencent, 13B params, ~26GB",
+                modelUrl = "https://huggingface.co/Tencent-Hunyuan/HunyuanVideo/tree/main",
+                tokenizerUrl = null,
+                vaeUrl = null,
+                sizeMB = 26000,
+                type = ModelType.TEXT_TO_VIDEO
             )
         )
     }
@@ -183,8 +205,8 @@ class LocalMnnEngine(private val context: Context) {
     }
 
     /**
-     * Generate image using ONNX Runtime (fallback if MNN native not available)
-     * Uses quantized Stable Diffusion model
+     * Generate image using HuggingFace Inference API (free tier)
+     * Falls back to Pollinations.ai if HuggingFace fails
      */
     suspend fun generateImage(
         prompt: String,
@@ -196,34 +218,78 @@ class LocalMnnEngine(private val context: Context) {
         val startTime = System.currentTimeMillis()
         
         try {
-            // For now, use the fallback HTTP approach with Pollinations.ai
-            // When MNN native library is integrated, this will run inference locally
+            // Try HuggingFace Inference API first (free for some models)
+            val hfUrl = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0"
+            val hfPayload = """
+                {
+                    "inputs": "$prompt",
+                    "parameters": {
+                        "width": $width,
+                        "height": $height,
+                        "num_inference_steps": $steps
+                    }
+                }
+            """.trimIndent()
+            
+            val hfConnection = java.net.URL(hfUrl).openConnection() as java.net.HttpURLConnection
+            hfConnection.requestMethod = "POST"
+            hfConnection.setRequestProperty("Content-Type", "application/json")
+            hfConnection.connectTimeout = 60000
+            hfConnection.readTimeout = 120000
+            hfConnection.doOutput = true
+            
+            val hfOutputStream = hfConnection.outputStream
+            hfOutputStream.write(hfPayload.toByteArray())
+            hfOutputStream.flush()
+            hfOutputStream.close()
+            
+            val hfBitmap = if (hfConnection.responseCode == 200) {
+                val inputStream = hfConnection.inputStream
+                val bitmap = android.graphics.BitmapFactory.decodeStream(inputStream)
+                inputStream.close()
+                bitmap
+            } else {
+                null
+            }
+            
+            hfConnection.disconnect()
+            
+            if (hfBitmap != null) {
+                val generationTime = System.currentTimeMillis() - startTime
+                return@withContext GenerationResult(
+                    success = true,
+                    bitmap = hfBitmap,
+                    generationTimeMs = generationTime
+                )
+            }
+            
+            // Fallback to Pollinations.ai (completely free)
             val fullPrompt = "high quality, detailed, $prompt"
             val encodedPrompt = URLEncoder.encode(fullPrompt, "UTF-8")
-            val url = "https://image.pollinations.ai/prompt/$encodedPrompt?width=$width&height=$height&seed=$seed&nologo=true"
+            val pollUrl = "https://image.pollinations.ai/prompt/$encodedPrompt?width=$width&height=$height&seed=$seed&nologo=true"
             
-            val connection = java.net.URL(url).openConnection() as java.net.HttpURLConnection
-            connection.connectTimeout = 60000
-            connection.readTimeout = 120000
-            connection.connect()
+            val pollConnection = java.net.URL(pollUrl).openConnection() as java.net.HttpURLConnection
+            pollConnection.connectTimeout = 60000
+            pollConnection.readTimeout = 120000
+            pollConnection.connect()
             
-            val inputStream = connection.inputStream
-            val bitmap = android.graphics.BitmapFactory.decodeStream(inputStream)
-            inputStream.close()
-            connection.disconnect()
+            val pollInputStream = pollConnection.inputStream
+            val pollBitmap = android.graphics.BitmapFactory.decodeStream(pollInputStream)
+            pollInputStream.close()
+            pollConnection.disconnect()
             
             val generationTime = System.currentTimeMillis() - startTime
             
-            if (bitmap != null) {
+            if (pollBitmap != null) {
                 GenerationResult(
                     success = true,
-                    bitmap = bitmap,
+                    bitmap = pollBitmap,
                     generationTimeMs = generationTime
                 )
             } else {
                 GenerationResult(
                     success = false,
-                    error = "Failed to decode image",
+                    error = "Failed to generate image",
                     generationTimeMs = generationTime
                 )
             }
