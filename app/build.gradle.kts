@@ -102,6 +102,10 @@ dependencies {
     implementation("com.microsoft.onnxruntime:onnxruntime-android:1.19.0")
     implementation("com.microsoft.onnxruntime:onnxruntime-extensions-android:0.10.0")
     
+    // Apache POI for PPTX export
+    implementation("org.apache.poi:poi:5.2.5")
+    implementation("org.apache.poi:poi-ooxml:5.2.5")
+    
     // Core KTX
     implementation("androidx.core:core-ktx:1.15.0")
     
