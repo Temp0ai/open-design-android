@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.opendesign.api.OpenDesignApi
 import com.opendesign.ui.viewmodel.ConnectionStatus
 import com.opendesign.ui.viewmodel.SettingsViewModel
 
@@ -21,11 +22,13 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
     val config by viewModel.apiConfig.collectAsState()
     val connectionStatus by viewModel.connectionStatus.collectAsState()
 
-    var apiEndpoint by remember(config.baseUrl) { mutableStateOf(config.baseUrl.ifEmpty { "https://api.anthropic.com" }) }
+    var apiEndpoint by remember(config.baseUrl) { mutableStateOf(config.baseUrl) }
     var apiKey by remember(config.apiKey) { mutableStateOf(config.apiKey) }
-    var selectedProvider by remember(config.provider) { mutableStateOf(config.provider.replaceFirstChar { it.uppercase() }) }
+    var selectedProvider by remember(config.provider) { mutableStateOf(config.provider) }
     var selectedModel by remember(config.model) { mutableStateOf(config.model) }
-    var defaultFormat by remember { mutableStateOf("HTML") }
+
+    val providerModels = OpenDesignApi.PROVIDER_MODELS[selectedProvider] ?: emptyList()
+    val providerName = selectedProvider.replaceFirstChar { it.uppercase() }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -40,32 +43,9 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Configure your Open Design connection",
+                    text = "Configure your AI provider",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-
-        // Connection Section
-        item {
-            SettingsSection(title = "CONNECTION") {
-                SettingsInputRow(
-                    label = "API Endpoint",
-                    value = apiEndpoint,
-                    onValueChange = {
-                        apiEndpoint = it
-                        viewModel.saveBaseUrl(it)
-                    }
-                )
-                SettingsInputRow(
-                    label = "API Key",
-                    value = apiKey,
-                    onValueChange = {
-                        apiKey = it
-                        viewModel.saveApiKey(it)
-                    },
-                    isPassword = true
                 )
             }
         }
@@ -75,17 +55,22 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
             SettingsSection(title = "AI PROVIDER") {
                 SettingsSelectRow(
                     label = "Provider",
-                    value = selectedProvider,
-                    options = listOf("Anthropic", "OpenAI", "Google", "Ollama"),
-                    onSelect = {
-                        selectedProvider = it
-                        viewModel.saveProvider(it.lowercase())
+                    value = providerName,
+                    options = listOf("Anthropic", "OpenAI", "Google", "Ollama", "MiMo"),
+                    onSelect = { provider ->
+                        val slug = provider.lowercase()
+                        selectedProvider = slug
+                        selectedModel = OpenDesignApi.PROVIDER_MODELS[slug]?.firstOrNull() ?: ""
+                        apiEndpoint = OpenDesignApi.PROVIDER_DEFAULT_URLS[slug] ?: ""
+                        viewModel.saveProvider(slug)
+                        viewModel.saveModel(selectedModel)
+                        viewModel.saveBaseUrl(apiEndpoint)
                     }
                 )
                 SettingsSelectRow(
                     label = "Model",
                     value = selectedModel,
-                    options = listOf("claude-3-5-sonnet-20241022", "claude-3-opus-20240229", "gpt-4o", "gemini-pro"),
+                    options = providerModels,
                     onSelect = {
                         selectedModel = it
                         viewModel.saveModel(it)
@@ -94,23 +79,149 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
             }
         }
 
-        // Export Section
+        // Connection Section
         item {
-            SettingsSection(title = "EXPORT") {
-                SettingsSelectRow(
-                    label = "Default Format",
-                    value = defaultFormat,
-                    options = listOf("HTML", "PDF", "PPTX", "ZIP"),
-                    onSelect = { defaultFormat = it }
+            SettingsSection(title = "CONNECTION") {
+                SettingsInputRow(
+                    label = "Endpoint",
+                    value = apiEndpoint,
+                    onValueChange = {
+                        apiEndpoint = it
+                        viewModel.saveBaseUrl(it)
+                    }
                 )
+                if (selectedProvider != "ollama") {
+                    SettingsInputRow(
+                        label = "API Key",
+                        value = apiKey,
+                        onValueChange = {
+                            apiKey = it
+                            viewModel.saveApiKey(it)
+                        },
+                        isPassword = true
+                    )
+                } else {
+                    SettingsInfoRow(
+                        label = "API Key",
+                        value = "Not required (local)"
+                    )
+                }
             }
         }
 
-        // About Section
+        // Provider Info
         item {
-            SettingsSection(title = "ABOUT") {
-                SettingsInfoRow(label = "Version", value = "1.0.0")
-                SettingsInfoRow(label = "Open Design", value = "github.com/nexu-io/open-design")
+            when (selectedProvider) {
+                "ollama" -> {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = "Ollama - 100% Free & Private",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Runs locally on your device or PC. No API key needed.\n\n1. Install Ollama: ollama.com\n2. Run: ollama pull qwen2.5\n3. Start: ollama serve",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                    }
+                }
+                "mimo" -> {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = "Xiaomi MiMo - Free Open Models",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "MiMo models are free and open-source.\n\nOption 1: Run via Ollama locally\n  ollama pull qwen2.5\n\nOption 2: Use a cloud API\n  Set endpoint to your MiMo API URL",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                    }
+                }
+                "anthropic" -> {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = "Anthropic Claude",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Get your API key at console.anthropic.com",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                    }
+                }
+                "openai" -> {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = "OpenAI GPT",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Get your API key at platform.openai.com",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                    }
+                }
+                else -> {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = "Google Gemini",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Get your API key at aistudio.google.com",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                    }
+                }
             }
         }
 
@@ -147,6 +258,14 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
                     }
                 }
                 else -> {}
+            }
+        }
+
+        // About
+        item {
+            SettingsSection(title = "ABOUT") {
+                SettingsInfoRow(label = "Version", value = "1.0.0")
+                SettingsInfoRow(label = "Offline Mode", value = "Available (no API needed)")
             }
         }
 

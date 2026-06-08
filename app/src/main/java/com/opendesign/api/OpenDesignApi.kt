@@ -11,15 +11,14 @@ import kotlinx.serialization.json.*
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
-import java.io.BufferedReader
 import java.io.IOException
 import java.util.UUID
 
 class OpenDesignApi {
 
     private val client = OkHttpClient.Builder()
-        .connectTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
-        .readTimeout(120, java.util.concurrent.TimeUnit.SECONDS)
+        .connectTimeout(120, java.util.concurrent.TimeUnit.SECONDS)
+        .readTimeout(300, java.util.concurrent.TimeUnit.SECONDS)
         .build()
 
     private val json = Json {
@@ -27,26 +26,68 @@ class OpenDesignApi {
         isLenient = true
     }
 
+    companion object {
+        const val PROVIDER_ANTHROPIC = "anthropic"
+        const val PROVIDER_OPENAI = "openai"
+        const val PROVIDER_GOOGLE = "google"
+        const val PROVIDER_OLLAMA = "ollama"
+        const val PROVIDER_MIMO = "mimo"
+
+        val PROVIDER_MODELS = mapOf(
+            PROVIDER_ANTHROPIC to listOf(
+                "claude-3-5-sonnet-20241022",
+                "claude-3-opus-20240229",
+                "claude-3-haiku-20240307"
+            ),
+            PROVIDER_OPENAI to listOf(
+                "gpt-4o",
+                "gpt-4o-mini",
+                "gpt-4-turbo"
+            ),
+            PROVIDER_GOOGLE to listOf(
+                "gemini-pro",
+                "gemini-1.5-flash",
+                "gemini-1.5-pro"
+            ),
+            PROVIDER_OLLAMA to listOf(
+                "llama3.1",
+                "codellama",
+                "mistral",
+                "mixtral",
+                "qwen2.5",
+                "deepseek-coder"
+            ),
+            PROVIDER_MIMO to listOf(
+                "MiMo-7B-RL",
+                "MiMo-7B-SFT",
+                "mimo-v2.5"
+            )
+        )
+
+        val PROVIDER_DEFAULT_URLS = mapOf(
+            PROVIDER_ANTHROPIC to "https://api.anthropic.com",
+            PROVIDER_OPENAI to "https://api.openai.com/v1",
+            PROVIDER_GOOGLE to "https://generativelanguage.googleapis.com/v1beta",
+            PROVIDER_OLLAMA to "http://10.0.2.2:11434/v1",
+            PROVIDER_MIMO to "http://10.0.2.2:11434/v1"
+        )
+    }
+
     fun generateDesign(
         config: ApiConfig,
         request: GenerationRequest,
         designSystemMd: String
     ): Flow<String> = flow {
-        val baseUrl = when (config.provider) {
-            "anthropic" -> config.baseUrl.ifEmpty { "https://api.anthropic.com" }
-            "openai" -> config.baseUrl.ifEmpty { "https://api.openai.com/v1" }
-            "google" -> config.baseUrl.ifEmpty { "https://generativelanguage.googleapis.com/v1beta" }
-            else -> config.baseUrl.ifEmpty { "https://api.anthropic.com" }
-        }
-
+        val baseUrl = getBaseUrl(config)
         val systemPrompt = buildSystemPrompt(request, designSystemMd)
         val userMessage = buildUserPrompt(request)
 
         val lines = withContext(Dispatchers.IO) {
             when (config.provider) {
-                "anthropic" -> fetchSSELines(buildAnthropicRequest(baseUrl, config.apiKey, config.model, systemPrompt, userMessage))
-                "openai" -> fetchSSELines(buildOpenAIRequest(baseUrl, config.apiKey, config.model, systemPrompt, userMessage))
-                else -> fetchSSELines(buildAnthropicRequest(baseUrl, config.apiKey, config.model, systemPrompt, userMessage))
+                PROVIDER_ANTHROPIC -> fetchSSELines(buildAnthropicRequest(baseUrl, config.apiKey, config.model, systemPrompt, userMessage))
+                PROVIDER_OPENAI, PROVIDER_OLLAMA, PROVIDER_MIMO -> fetchSSELines(buildOpenAICompatibleRequest(baseUrl, config.apiKey, config.model, systemPrompt, userMessage))
+                PROVIDER_GOOGLE -> fetchSSELines(buildOpenAICompatibleRequest(baseUrl, config.apiKey, config.model, systemPrompt, userMessage))
+                else -> fetchSSELines(buildOpenAICompatibleRequest(baseUrl, config.apiKey, config.model, systemPrompt, userMessage))
             }
         }
 
@@ -58,14 +99,18 @@ class OpenDesignApi {
             try {
                 val event = json.parseToJsonElement(data).jsonObject
                 val text = when (config.provider) {
-                    "anthropic" -> parseAnthropicDelta(event)
-                    "openai" -> parseOpenAIDelta(event)
-                    else -> parseAnthropicDelta(event)
+                    PROVIDER_ANTHROPIC -> parseAnthropicDelta(event)
+                    else -> parseOpenAIDelta(event)
                 }
                 if (text != null) emit(text)
             } catch (_: Exception) {}
         }
     }.flowOn(Dispatchers.Default)
+
+    private fun getBaseUrl(config: ApiConfig): String {
+        if (config.baseUrl.isNotBlank()) return config.baseUrl
+        return PROVIDER_DEFAULT_URLS[config.provider] ?: "https://api.openai.com/v1"
+    }
 
     private fun buildSystemPrompt(request: GenerationRequest, designSystemMd: String): String {
         return """You are Open Design, an expert UI/UX designer and frontend developer.
@@ -118,13 +163,14 @@ STYLE: ${request.style}
             .build()
     }
 
-    private fun buildOpenAIRequest(
+    private fun buildOpenAICompatibleRequest(
         baseUrl: String, apiKey: String, model: String,
         systemPrompt: String, userMessage: String
     ): Request {
         val body = buildJsonObject {
             put("model", model)
             put("stream", true)
+            put("max_tokens", 8192)
             putJsonArray("messages") {
                 addJsonObject {
                     put("role", "system")
@@ -137,10 +183,15 @@ STYLE: ${request.style}
             }
         }
 
-        return Request.Builder()
+        val builder = Request.Builder()
             .url("$baseUrl/chat/completions")
-            .addHeader("Authorization", "Bearer $apiKey")
             .addHeader("content-type", "application/json")
+
+        if (apiKey.isNotBlank()) {
+            builder.addHeader("Authorization", "Bearer $apiKey")
+        }
+
+        return builder
             .post(body.toString().toRequestBody("application/json".toMediaType()))
             .build()
     }
