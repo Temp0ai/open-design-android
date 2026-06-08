@@ -16,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.opendesign.export.Mp4Exporter
 import com.opendesign.export.PptxExporter
@@ -51,14 +52,10 @@ fun PreviewScreen(html: String, onBack: () -> Unit) {
                     IconButton(onClick = { showExportMenu = true }, enabled = !isExporting) {
                         Icon(Icons.Default.FileDownload, contentDescription = "Export")
                     }
-                    IconButton(onClick = {
-                        shareHtml(context, html)
-                    }) {
+                    IconButton(onClick = { shareHtml(context, html) }) {
                         Icon(Icons.Default.Share, contentDescription = "Share")
                     }
-                    IconButton(onClick = {
-                        copyToClipboard(context, html)
-                    }) {
+                    IconButton(onClick = { copyToClipboard(context, html) }) {
                         Icon(Icons.Default.ContentCopy, contentDescription = "Copy HTML")
                     }
                 }
@@ -210,9 +207,8 @@ private fun exportPdf(context: Context, html: String) {
         }
         webView.postDelayed({
             try {
-                val method = WebView::class.java.getMethod("createPrintJobAdapter", String::class.java)
-                val adapter = method.invoke(webView, "Open Design Export") as android.print.PrintDocumentAdapter
-                printManager.print("Open Design Design", adapter, PrintAttributes.Builder().build())
+                val printAdapter = webView.createPrintDocumentAdapter("Open Design Export")
+                printManager.print("Open Design Export", printAdapter, PrintAttributes.Builder().build())
                 Toast.makeText(context, "Opening print dialog for PDF export...", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
                 Toast.makeText(context, "PDF export: use Print to save as PDF", Toast.LENGTH_LONG).show()
