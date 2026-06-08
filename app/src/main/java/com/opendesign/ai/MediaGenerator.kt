@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
 
@@ -81,12 +82,12 @@ class MediaGenerator(private val context: Context) {
                 seed
             )
 
-            val connection = URL(url).openConnection()
+            val connection = URL(url).openConnection() as HttpURLConnection
             connection.connectTimeout = 60000
             connection.readTimeout = 120000
             connection.connect()
 
-            val inputStream = connection.getInputStream()
+            val inputStream = connection.inputStream
             val bitmap = BitmapFactory.decodeStream(inputStream)
             inputStream.close()
             connection.disconnect()
@@ -123,10 +124,10 @@ class MediaGenerator(private val context: Context) {
             val url = "$POLLINATIONS_VIDEO_URL/$encodedPrompt"
 
             // Test if URL is accessible
-            val connection = URL(url).openConnection()
+            val connection = URL(url).openConnection() as HttpURLConnection
             connection.connectTimeout = 30000
             connection.readTimeout = 60000
-            connection.setRequestMethod("HEAD")
+            connection.requestMethod = "HEAD"
             connection.connect()
             connection.disconnect()
 
