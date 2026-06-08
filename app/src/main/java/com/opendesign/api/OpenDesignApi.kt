@@ -83,13 +83,13 @@ INSTRUCTIONS:
 5. Include smooth animations and transitions
 6. Output ONLY the HTML code, no explanations
 
-ARTIFACT TYPE: ${request.mode}
+ARTIFACT TYPE: ${request.skill}
 STYLE: ${request.style}
 """
     }
 
     private fun buildUserPrompt(request: GenerationRequest): String {
-        return "Create a ${request.mode} design: ${request.prompt}"
+        return "Create a ${request.skill} design: ${request.prompt}"
     }
 
     private fun buildAnthropicRequest(
