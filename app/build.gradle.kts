@@ -101,9 +101,6 @@ dependencies {
     // Core KTX
     implementation("androidx.core:core-ktx:1.15.0")
     
-    // MediaPipe LLM Inference (on-device AI)
-    implementation("com.google.mediapipe:tasks-genai:0.10.22")
-    
     // Debug
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")

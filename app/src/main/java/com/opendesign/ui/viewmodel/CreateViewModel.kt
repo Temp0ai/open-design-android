@@ -56,11 +56,7 @@ class CreateViewModel(application: Application) : AndroidViewModel(application) 
             localAi.downloadModel(model) { progress ->
                 _uiState.update { it.copy(downloadState = LocalAiEngine.DownloadState.Downloading(progress)) }
             }.collect { state ->
-                _uiState.update { it.copy(downloadState = state) }
-                if (state is LocalAiEngine.DownloadState.Done) {
-                    downloadedModels as MutableStateFlow
-                    _uiState.update { it.copy(downloadState = null) }
-                }
+                _uiState.update { it.copy(downloadState = if (state is LocalAiEngine.DownloadState.Done) null else state) }
             }
         }
     }
@@ -79,68 +75,29 @@ class CreateViewModel(application: Application) : AndroidViewModel(application) 
 
                 val finalHtml: String
 
-                when (config.provider) {
-                    "local" -> {
-                        // On-device AI
-                        val modelReady = localAi.isModelDownloaded(config.model)
-                        if (!modelReady) {
-                            _uiState.update {
-                                it.copy(
-                                    isGenerating = false,
-                                    error = "Please download a model first in Settings"
-                                )
-                            }
-                            return@launch
-                        }
-
-                        if (localAi.generate("test").firstOrNull() == null) {
-                            localAi.initializeModel(config.model)
-                        }
-
-                        val dsMd = ds?.designMd ?: ""
-                        val systemPrompt = buildLocalSystemPrompt(skill?.name ?: "design", dsMd)
-                        val htmlBuilder = StringBuilder()
-                        localAi.generate(state.prompt, systemPrompt).collect { chunk ->
-                            htmlBuilder.append(chunk)
-                            _uiState.update { s -> s.copy(streamingText = htmlBuilder.toString()) }
-                        }
-                        finalHtml = extractHtml(htmlBuilder.toString())
+                if (config.apiKey.isNotBlank() && config.provider != "local") {
+                    // Cloud API mode - call real AI
+                    val request = GenerationRequest(
+                        skill = skill?.slug ?: "web-prototype",
+                        prompt = state.prompt,
+                        designSystem = state.selectedDesignSystemSlug ?: "linear",
+                        style = state.selectedStyleId ?: "minimal"
+                    )
+                    val htmlBuilder = StringBuilder()
+                    repository.generateDesign(config, request).collect { chunk ->
+                        htmlBuilder.append(chunk)
+                        _uiState.update { s -> s.copy(streamingText = htmlBuilder.toString()) }
                     }
-                    config.provider -> {
-                        // Cloud API
-                        if (config.apiKey.isBlank()) {
-                            // Offline mode - generate local sample HTML
-                            finalHtml = generateLocalHtml(
-                                prompt = state.prompt,
-                                skillName = skill?.name ?: "Prototype",
-                                style = state.selectedStyleId ?: "minimal",
-                                dsName = ds?.name ?: "Linear",
-                                dsColor = ds?.color ?: "#6C5CE7"
-                            )
-                        } else {
-                            val request = GenerationRequest(
-                                skill = skill?.slug ?: "web-prototype",
-                                prompt = state.prompt,
-                                designSystem = state.selectedDesignSystemSlug ?: "linear",
-                                style = state.selectedStyleId ?: "minimal"
-                            )
-                            val htmlBuilder = StringBuilder()
-                            repository.generateDesign(config, request).collect { chunk ->
-                                htmlBuilder.append(chunk)
-                                _uiState.update { s -> s.copy(streamingText = htmlBuilder.toString()) }
-                            }
-                            finalHtml = htmlBuilder.toString()
-                        }
-                    }
-                    else -> {
-                        finalHtml = generateLocalHtml(
-                            prompt = state.prompt,
-                            skillName = skill?.name ?: "Prototype",
-                            style = state.selectedStyleId ?: "minimal",
-                            dsName = ds?.name ?: "Linear",
-                            dsColor = ds?.color ?: "#6C5CE7"
-                        )
-                    }
+                    finalHtml = htmlBuilder.toString()
+                } else {
+                    // Offline mode - smart local HTML generation
+                    finalHtml = generateLocalHtml(
+                        prompt = state.prompt,
+                        skillName = skill?.name ?: "Prototype",
+                        style = state.selectedStyleId ?: "minimal",
+                        dsName = ds?.name ?: "Linear",
+                        dsColor = ds?.color ?: "#6C5CE7"
+                    )
                 }
 
                 val title = state.prompt.take(50)
@@ -182,35 +139,6 @@ class CreateViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    private fun buildLocalSystemPrompt(skillName: String, designSystemMd: String): String {
-        return """You are an expert UI/UX designer. Create complete HTML designs.
-
-Skill: $skillName
-Design System: $designSystemMd
-
-RULES:
-1. Output ONLY valid HTML code
-2. Include all CSS inline in <style> tags
-3. Make it responsive and mobile-first
-4. Use modern CSS (Grid, Flexbox, custom properties)
-5. Include smooth animations
-6. Use the design system colors and typography
-
-Output a complete HTML document:"""
-    }
-
-    private fun extractHtml(text: String): String {
-        val start = text.indexOf("<!DOCTYPE")
-        if (start == -1) {
-            val htmlStart = text.indexOf("<html")
-            if (htmlStart == -1) return text
-            val htmlEnd = text.lastIndexOf("</html>")
-            return if (htmlEnd > htmlStart) text.substring(htmlStart, htmlEnd + 7) else text.substring(htmlStart)
-        }
-        val end = text.lastIndexOf("</html>")
-        return if (end > start) text.substring(start, end + 7) else text.substring(start)
-    }
-
     private fun generateLocalHtml(
         prompt: String,
         skillName: String,
@@ -249,35 +177,78 @@ Output a complete HTML document:"""
         .hero { background: $gradient; padding: 80px 24px; text-align: center; color: white; }
         .hero h1 { font-size: 36px; font-weight: 800; margin-bottom: 16px; }
         .hero p { font-size: 18px; opacity: 0.9; margin-bottom: 32px; max-width: 600px; margin-left: auto; margin-right: auto; }
-        .hero .cta { background: white; color: $dsColor; border: none; padding: 16px 40px; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; }
+        .hero .cta { background: white; color: $dsColor; border: none; padding: 16px 40px; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        .hero .cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
         .section { padding: 60px 24px; max-width: 1000px; margin: 0 auto; }
         .section h2 { font-size: 28px; font-weight: 700; margin-bottom: 12px; text-align: center; }
-        .section .subtitle { color: #666; text-align: center; margin-bottom: 40px; }
+        .section .subtitle { color: #666; text-align: center; margin-bottom: 40px; font-size: 16px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        .card { background: white; border-radius: 16px; padding: 32px; border: 1px solid #E8E8E8; }
+        .card { background: white; border-radius: 16px; padding: 32px; border: 1px solid #E8E8E8; transition: transform 0.2s, box-shadow 0.2s; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); }
+        .card .icon { width: 48px; height: 48px; border-radius: 12px; background: ${accent}15; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 16px; }
         .card h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
-        .card p { font-size: 14px; color: #666; }
-        .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: ${accent}15; color: $dsColor; margin-bottom: 16px; }
+        .card p { font-size: 14px; color: #666; line-height: 1.5; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 24px; padding: 40px 24px; max-width: 800px; margin: 0 auto; }
+        .stat { text-align: center; padding: 24px; background: white; border-radius: 12px; border: 1px solid #E8E8E8; }
+        .stat .number { font-size: 32px; font-weight: 800; color: $dsColor; }
+        .stat .label { font-size: 14px; color: #666; margin-top: 4px; }
+        .cta-section { text-align: center; padding: 60px 24px; background: white; }
+        .cta-section h2 { font-size: 28px; font-weight: 700; margin-bottom: 16px; }
+        .cta-section p { color: #666; margin-bottom: 32px; font-size: 16px; }
+        .cta-section .btn { background: $dsColor; color: white; border: none; padding: 16px 48px; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.2s; }
+        .cta-section .btn:hover { transform: translateY(-2px); }
         footer { padding: 40px 24px; text-align: center; color: #999; font-size: 14px; border-top: 1px solid #E8E8E8; }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: ${accent}15; color: $dsColor; margin-bottom: 16px; }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: white; border-bottom: 1px solid #E8E8E8; }
+        nav .logo { font-weight: 700; font-size: 18px; color: $dsColor; }
+        nav ul { display: flex; list-style: none; gap: 24px; }
+        nav ul li a { text-decoration: none; color: #666; font-weight: 500; }
+        nav ul li a:hover { color: $dsColor; }
     </style>
 </head>
 <body>
+    <nav>
+        <div class="logo">$dsName</div>
+        <ul><li><a href="#">Home</a></li><li><a href="#">Features</a></li><li><a href="#">Pricing</a></li><li><a href="#">Contact</a></li></ul>
+    </nav>
     <div class="hero">
         <div class="badge">$skillName</div>
         <h1>$prompt</h1>
-        <p>Built with Open Design - $dsName Design System</p>
+        <p>Built with Open Design using the $dsName design system. Generated locally on your device.</p>
         <button class="cta">Get Started</button>
     </div>
     <div class="section">
         <h2>Features</h2>
-        <p class="subtitle">Everything you need</p>
+        <p class="subtitle">Everything you need to get started</p>
         <div class="grid">
-            <div class="card"><h3>Design</h3><p>Professional design with $dsName system</p></div>
-            <div class="card"><h3>Fast</h3><p>Generated locally on your device</p></div>
-            <div class="card"><h3>Free</h3><p>No API key required</p></div>
+            <div class="card">
+                <div class="icon">\uD83C\uDFA8</div>
+                <h3>Design Systems</h3>
+                <p>150+ brand-grade design systems including $dsName with full component libraries</p>
+            </div>
+            <div class="card">
+                <div class="icon">\u26A1</div>
+                <h3>AI Generation</h3>
+                <p>Create production-ready designs with natural language prompts</p>
+            </div>
+            <div class="card">
+                <div class="icon">\uD83D\uDCE6</div>
+                <h3>Export Anywhere</h3>
+                <p>Export to HTML, PDF, PPTX, or share directly with your team</p>
+            </div>
         </div>
     </div>
-    <footer><p>Generated by Open Design Mobile</p></footer>
+    <div class="stats">
+        <div class="stat"><div class="number">150+</div><div class="label">Design Systems</div></div>
+        <div class="stat"><div class="number">100+</div><div class="label">Skills</div></div>
+        <div class="stat"><div class="number">4</div><div class="label">AI Providers</div></div>
+    </div>
+    <div class="cta-section">
+        <h2>Ready to start?</h2>
+        <p>Create your first design in seconds</p>
+        <button class="btn">Start Creating</button>
+    </div>
+    <footer><p>Generated by Open Design Mobile &mdash; $dsName Design System</p></footer>
 </body>
 </html>
         """.trimIndent()
@@ -294,5 +265,5 @@ data class CreateUiState(
     val streamingText: String? = null,
     val error: String? = null,
     val lastArtifact: Artifact? = null,
-    val downloadState: com.opendesign.ai.LocalAiEngine.DownloadState? = null
+    val downloadState: LocalAiEngine.DownloadState? = null
 )
