@@ -18,8 +18,8 @@ class MediaViewModel(application: Application) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow(MediaUiState())
     val uiState: StateFlow<MediaUiState> = _uiState.asStateFlow()
 
-    private val _models = MutableStateFlow<List<LocalMnnEngine.MnnModel>>(emptyList())
-    val models: StateFlow<List<LocalMnnEngine.MnnModel>> = _models.asStateFlow()
+    private val _models = MutableStateFlow<List<MnnModel>>(emptyList())
+    val models: StateFlow<List<MnnModel>> = _models.asStateFlow()
 
     private val _downloadProgress = MutableStateFlow<Map<String, Float>>(emptyMap())
     val downloadProgress: StateFlow<Map<String, Float>> = _downloadProgress.asStateFlow()
@@ -133,7 +133,7 @@ class MediaViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun downloadModel(model: LocalMnnEngine.MnnModel) {
+    fun downloadModel(model: MnnModel) {
         viewModelScope.launch {
             _downloadProgress.value = _downloadProgress.value + (model.id to 0f)
             
