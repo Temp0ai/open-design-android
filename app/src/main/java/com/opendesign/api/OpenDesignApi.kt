@@ -33,6 +33,9 @@ class OpenDesignApi {
         const val PROVIDER_OLLAMA = "ollama"
         const val PROVIDER_MIMO = "mimo"
         const val PROVIDER_LOCAL = "local"
+        const val PROVIDER_DEEPSEEK = "deepseek"
+        const val PROVIDER_QWEN = "qwen"
+        const val PROVIDER_GLM = "glm"
 
         val PROVIDER_MODELS = mapOf(
             PROVIDER_LOCAL to listOf(
@@ -67,6 +70,22 @@ class OpenDesignApi {
                 "MiMo-7B-RL",
                 "MiMo-7B-SFT",
                 "mimo-v2.5"
+            ),
+            PROVIDER_DEEPSEEK to listOf(
+                "deepseek-chat",
+                "deepseek-coder",
+                "deepseek-reasoner"
+            ),
+            PROVIDER_QWEN to listOf(
+                "qwen-max",
+                "qwen-plus",
+                "qwen-turbo",
+                "qwen-long"
+            ),
+            PROVIDER_GLM to listOf(
+                "glm-4",
+                "glm-4-flash",
+                "glm-4-plus"
             )
         )
 
@@ -76,7 +95,10 @@ class OpenDesignApi {
             PROVIDER_GOOGLE to "https://generativelanguage.googleapis.com/v1beta",
             PROVIDER_OLLAMA to "http://10.0.2.2:11434/v1",
             PROVIDER_MIMO to "http://10.0.2.2:11434/v1",
-            PROVIDER_LOCAL to "local"
+            PROVIDER_LOCAL to "local",
+            PROVIDER_DEEPSEEK to "https://api.deepseek.com/v1",
+            PROVIDER_QWEN to "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            PROVIDER_GLM to "https://open.bigmodel.cn/api/paas/v4"
         )
     }
 

@@ -34,7 +34,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.opendesign.ai.LocalMnnEngine
+import com.opendesign.ai.MnnModel
+import com.opendesign.ai.ModelType
 import com.opendesign.ui.viewmodel.GeneratedType
 import com.opendesign.ui.viewmodel.MediaViewModel
 import kotlinx.coroutines.launch
@@ -54,7 +55,7 @@ fun MediaScreen(
     var selectedTab by remember { mutableStateOf(0) }
     var prompt by remember { mutableStateOf("") }
     var showModelPicker by remember { mutableStateOf(false) }
-    var selectedModel by remember { mutableStateOf<LocalMnnEngine.MnnModel?>(null) }
+    var selectedModel by remember { mutableStateOf<MnnModel?>(null) }
 
     val tabs = listOf("Images", "Videos", "Music", "Models")
 
@@ -151,7 +152,7 @@ fun MediaScreen(
                                 Text(selectedModel?.name ?: "Default Model") 
                             },
                             leadingIcon = {
-                                Icon(Icons.Default.Cpu, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Icon(Icons.Default.Memory, contentDescription = null, modifier = Modifier.size(18.dp))
                             }
                         )
                     }
@@ -177,7 +178,7 @@ fun MediaScreen(
                                     showModelPicker = false
                                 },
                                 leadingIcon = {
-                                    Icon(Icons.Default.Cpu, contentDescription = null)
+                                    Icon(Icons.Default.Memory, contentDescription = null)
                                 },
                                 trailingIcon = {
                                     if (viewModel.isModelDownloaded(model.id)) {
@@ -530,10 +531,10 @@ fun MediaScreen(
 
 @Composable
 fun ModelsTab(
-    models: List<LocalMnnEngine.MnnModel>,
+    models: List<MnnModel>,
     downloadProgress: Map<String, Float>,
     isModelDownloaded: (String) -> Boolean,
-    onDownloadModel: (LocalMnnEngine.MnnModel) -> Unit
+    onDownloadModel: (MnnModel) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -574,7 +575,7 @@ fun ModelsTab(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            Icons.Default.Cpu,
+                            Icons.Default.Memory,
                             contentDescription = null,
                             modifier = Modifier.size(40.dp),
                             tint = MaterialTheme.colorScheme.primary

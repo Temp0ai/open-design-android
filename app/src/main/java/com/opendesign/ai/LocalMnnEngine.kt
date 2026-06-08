@@ -8,6 +8,26 @@ import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
 import java.net.URLEncoder
+import java.net.HttpURLConnection
+
+// Data classes for MNN models
+data class MnnModel(
+    val id: String,
+    val name: String,
+    val description: String,
+    val modelUrl: String,
+    val tokenizerUrl: String?,
+    val vaeUrl: String?,
+    val sizeMB: Int,
+    val type: ModelType
+)
+
+enum class ModelType {
+    TEXT_TO_IMAGE,
+    IMAGE_TO_IMAGE,
+    TEXT_TO_VIDEO,
+    UPSCALE
+}
 
 /**
  * Local AI Engine using Alibaba's MNN (Mobile Neural Network)
@@ -21,26 +41,6 @@ class LocalMnnEngine(private val context: Context) {
     companion object {
         private const val MODELS_DIR = "mnn_models"
         private const val CACHE_DIR = "mnn_cache"
-        
-        // Pre-converted MNN models (quantized for mobile)
-        // These are optimized ONNX/MNN format models from HuggingFace
-        data class MnnModel(
-            val id: String,
-            val name: String,
-            val description: String,
-            val modelUrl: String,
-            val tokenizerUrl: String?,
-            val vaeUrl: String?,
-            val sizeMB: Int,
-            val type: ModelType
-        )
-        
-        enum class ModelType {
-            TEXT_TO_IMAGE,
-            IMAGE_TO_IMAGE,
-            TEXT_TO_VIDEO,
-            UPSCALE
-        }
         
         // Available MNN models for mobile inference
         val AVAILABLE_MODELS = listOf(
@@ -142,12 +142,12 @@ class LocalMnnEngine(private val context: Context) {
             }
 
             val url = URL(model.modelUrl)
-            val connection = url.openConnection()
+            val connection = url.openConnection() as HttpURLConnection
             connection.connectTimeout = 60000
             connection.readTimeout = 120000
             
             val totalSize = connection.contentLength
-            val inputStream = connection.getInputStream()
+            val inputStream = connection.inputStream
             val outputStream = FileOutputStream(modelFile)
             
             val buffer = ByteArray(8192)

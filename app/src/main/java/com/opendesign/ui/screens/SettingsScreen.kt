@@ -69,10 +69,13 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
                 SettingsSelectRow(
                     label = "Provider",
                     value = providerName,
-                    options = listOf("Local AI", "Ollama", "MiMo", "Anthropic", "OpenAI", "Google"),
+                    options = listOf("Local AI", "Ollama", "MiMo", "Anthropic", "OpenAI", "Google", "DeepSeek (Free Credits)", "Qwen (Alibaba, Free Credits)", "ChatGLM (Zhipu, Free Credits)"),
                     onSelect = { provider ->
                         val slug = when (provider) {
                             "Local AI" -> "local"
+                            "DeepSeek (Free Credits)" -> "deepseek"
+                            "Qwen (Alibaba, Free Credits)" -> "qwen"
+                            "ChatGLM (Zhipu, Free Credits)" -> "glm"
                             else -> provider.lowercase()
                         }
                         selectedProvider = slug
