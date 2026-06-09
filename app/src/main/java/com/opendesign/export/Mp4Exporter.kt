@@ -7,12 +7,13 @@ import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.media.MediaMuxer
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import java.io.File
-import java.nio.ByteBuffer
+import java.io.FileOutputStream
 
 class Mp4Exporter(private val context: Context) {
 
@@ -22,10 +23,6 @@ class Mp4Exporter(private val context: Context) {
         val error: String? = null
     )
 
-    /**
-     * Export HTML animation to MP4 video
-     * Captures WebView frames over time and encodes to H.264 MP4
-     */
     fun exportToMp4(
         html: String,
         title: String = "Open Design Video",
@@ -53,31 +50,23 @@ class Mp4Exporter(private val context: Context) {
                 )
                 webView.layout(0, 0, width, height)
 
-                // Wait for WebView to render
                 webView.postDelayed({
                     try {
                         val totalFrames = durationSeconds * fps
                         val frameInterval = 1000L / fps
 
-                        // Setup MediaCodec
                         val format = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height).apply {
                             setInteger(MediaFormat.KEY_BIT_RATE, 8_000_000)
                             setInteger(MediaFormat.KEY_FRAME_RATE, fps)
                             setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
-                            setInteger(
-                                MediaFormat.KEY_COLOR_FORMAT,
-                                MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface
-                            )
+                            setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
                         }
 
                         val codec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC)
                         codec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
-
-                        // Use surface input
                         val inputSurface = codec.createInputSurface()
                         codec.start()
 
-                        // Setup MediaMuxer
                         val dir = File(context.getExternalFilesDir(null), "OpenDesign")
                         if (!dir.exists()) dir.mkdirs()
                         val outputFile = File(dir, "design_${System.currentTimeMillis()}.mp4")
@@ -85,61 +74,48 @@ class Mp4Exporter(private val context: Context) {
                         var muxerTrackIndex = -1
                         var muxerStarted = false
 
-                        // Capture frames
                         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
                         val canvas = Canvas(bitmap)
-
                         val bufferInfo = MediaCodec.BufferInfo()
-                        var presentationTimeUs = 0L
 
                         for (frame in 0 until totalFrames) {
-                            // Draw WebView to canvas
                             bitmap.eraseColor(android.graphics.Color.WHITE)
                             webView.draw(canvas)
 
-                            // Encode frame - draw to input surface
                             val surfaceCanvas = inputSurface.lockCanvas(null)
                             surfaceCanvas?.drawBitmap(bitmap, 0f, 0f, null)
                             inputSurface.unlockCanvasAndPost(surfaceCanvas)
 
-                            // Drain encoder output
                             val outputIndex = codec.dequeueOutputBuffer(bufferInfo, 10000)
                             if (outputIndex >= 0) {
                                 val outputBuffer = codec.getOutputBuffer(outputIndex)
                                 if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG != 0) {
                                     bufferInfo.size = 0
                                 }
-
                                 if (bufferInfo.size > 0 && outputBuffer != null) {
                                     if (!muxerStarted) {
                                         muxerTrackIndex = muxer.addTrack(codec.outputFormat)
                                         muxer.start()
                                         muxerStarted = true
                                     }
-
                                     outputBuffer.position(bufferInfo.offset)
                                     outputBuffer.limit(bufferInfo.offset + bufferInfo.size)
                                     muxer.writeSampleData(muxerTrackIndex, outputBuffer, bufferInfo)
                                 }
-
                                 codec.releaseOutputBuffer(outputIndex, false)
-
-                                if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) {
-                                    break
-                                }
+                                if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) break
                             }
 
-                            presentationTimeUs += frameInterval * 1000
                             onProgress((frame + 1).toFloat() / totalFrames)
-
-                            // Simulate animation time
                             Thread.sleep(frameInterval)
                         }
 
-                        // Signal end of stream
-                        codec.signalEndOfSurface()
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            codec.signalEndOfStream()
+                        } else {
+                            codec.stop()
+                        }
 
-                        // Drain remaining
                         var drained = false
                         while (!drained) {
                             val outputIndex = codec.dequeueOutputBuffer(bufferInfo, 10000)
@@ -151,36 +127,29 @@ class Mp4Exporter(private val context: Context) {
                                     muxer.writeSampleData(muxerTrackIndex, outputBuffer, bufferInfo)
                                 }
                                 codec.releaseOutputBuffer(outputIndex, false)
-                                if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) {
-                                    drained = true
-                                }
+                                if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) drained = true
                             }
                         }
 
-                        // Cleanup
                         bitmap.recycle()
-                        codec.stop()
-                        codec.release()
-                        if (muxerStarted) {
-                            muxer.stop()
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                            codec.stop()
                         }
+                        codec.release()
+                        if (muxerStarted) muxer.stop()
                         muxer.release()
 
                         onResult(ExportResult(true, outputFile.absolutePath))
                     } catch (e: Exception) {
                         onResult(ExportResult(false, error = e.message))
                     }
-                }, 2000) // Wait for WebView to fully render
+                }, 2000)
             } catch (e: Exception) {
                 onResult(ExportResult(false, error = e.message))
             }
         }
     }
 
-    /**
-     * Export HTML to MP4 with custom animation script
-     * Executes JavaScript to control animation timing
-     */
     fun exportWithAnimation(
         html: String,
         animationScript: String,
@@ -191,33 +160,17 @@ class Mp4Exporter(private val context: Context) {
         onResult: (ExportResult) -> Unit
     ) {
         val mainHandler = Handler(Looper.getMainLooper())
-
         mainHandler.post {
             try {
-                // Inject animation control script
-                val enhancedHtml = html.replace(
-                    "</body>",
-                    """
+                val enhancedHtml = html.replace("</body>", """
                     <script>
                     $animationScript
                     window.__animationDuration = ${durationSeconds * 1000};
                     window.__startTime = Date.now();
-                    window.__captureFrame = function() {
-                        return (Date.now() - window.__startTime) / window.__animationDuration;
-                    };
                     </script>
                     </body>
-                    """.trimIndent()
-                )
-
-                exportToMp4(
-                    html = enhancedHtml,
-                    durationSeconds = durationSeconds,
-                    fps = fps,
-                    width = width,
-                    height = height,
-                    onResult = onResult
-                )
+                """.trimIndent())
+                exportToMp4(enhancedHtml, durationSeconds = durationSeconds, fps = fps, width = width, height = height, onResult = onResult)
             } catch (e: Exception) {
                 onResult(ExportResult(false, error = e.message))
             }
