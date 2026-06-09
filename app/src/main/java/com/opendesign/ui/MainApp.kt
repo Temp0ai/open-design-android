@@ -22,16 +22,18 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector,
     object Home : Screen("home", "Home", Icons.Outlined.Home, Icons.Filled.Home)
     object Create : Screen("create", "Create", Icons.Outlined.AddCircle, Icons.Filled.AddCircle)
     object Automation : Screen("automation", "Auto", Icons.Outlined.Bolt, Icons.Filled.Bolt)
+    object HyperFrames : Screen("hyperframes", "Frames", Icons.Outlined.Animation, Icons.Filled.Animation)
     object Plugins : Screen("plugins", "Plugins", Icons.Outlined.Extension, Icons.Filled.Extension)
     object Media : Screen("media", "Media", Icons.Outlined.Videocam, Icons.Filled.Videocam)
     object Gallery : Screen("gallery", "Gallery", Icons.Outlined.Image, Icons.Filled.Image)
     object Settings : Screen("settings", "Settings", Icons.Outlined.Settings, Icons.Filled.Settings)
 }
 
-val screens = listOf(Screen.Home, Screen.Create, Screen.Automation, Screen.Plugins, Screen.Media, Screen.Gallery, Screen.Settings)
+val screens = listOf(Screen.Home, Screen.Create, Screen.Automation, Screen.HyperFrames, Screen.Plugins, Screen.Media, Screen.Gallery, Screen.Settings)
 
 private object NavigationState {
     var selectedDesignSystem by mutableStateOf<DesignSystem?>(null)
+    var selectedHyperFrame by mutableStateOf<com.opendesign.ui.screens.HyperFrame?>(null)
 }
 
 @Composable
@@ -97,6 +99,14 @@ fun MainApp() {
                     }
                 )
             }
+            composable(Screen.HyperFrames.route) {
+                HyperFramesScreen(
+                    onFrameSelect = { frame ->
+                        NavigationState.selectedHyperFrame = frame
+                        navController.navigate("deck")
+                    }
+                )
+            }
             composable(Screen.Plugins.route) { PluginsScreen() }
             composable(Screen.Media.route) { MediaScreen() }
             composable(Screen.Gallery.route) { GalleryScreen() }
@@ -110,6 +120,20 @@ fun MainApp() {
                         designSystem = ds,
                         onBack = { navController.popBackStack() },
                         onUseDesignSystem = { navController.navigate(Screen.Create.route) }
+                    )
+                }
+            }
+
+            // Deck (HyperFrame viewer)
+            composable("deck") {
+                val frame = NavigationState.selectedHyperFrame
+                if (frame != null) {
+                    DeckScreen(
+                        slides = listOf(
+                            Slide(1, frame.name, frame.htmlTemplate, "Motion graphics template: ${frame.name}")
+                        ),
+                        title = frame.name,
+                        onBack = { navController.popBackStack() }
                     )
                 }
             }
