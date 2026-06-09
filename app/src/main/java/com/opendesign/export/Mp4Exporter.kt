@@ -7,7 +7,6 @@ import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.media.MediaMuxer
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.webkit.WebView
@@ -110,11 +109,7 @@ class Mp4Exporter(private val context: Context) {
                             Thread.sleep(frameInterval)
                         }
 
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            codec.signalEndOfStream()
-                        } else {
-                            codec.stop()
-                        }
+                        codec.signalEndOfInputStream()
 
                         var drained = false
                         while (!drained) {
@@ -132,9 +127,7 @@ class Mp4Exporter(private val context: Context) {
                         }
 
                         bitmap.recycle()
-                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-                            codec.stop()
-                        }
+                        codec.stop()
                         codec.release()
                         if (muxerStarted) muxer.stop()
                         muxer.release()
