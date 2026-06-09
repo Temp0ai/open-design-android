@@ -132,7 +132,7 @@ body{margin:0;display:flex;align-items:center;justify-content:center;height:100v
 .p{position:absolute;width:8px;height:8px;border-radius:50%;top:50%;left:50%;animation:burst 2s ease-out forwards}
 @keyframes burst{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--tx),var(--ty)) scale(0);opacity:0}}
 </style></head><body><div class="particles" id="p"></div>
-<script>const c=document.getElementById('p');for(let i=0;i<50;i++){const p=document.createElement('div');p.className='p';const a=Math.random()*Math.PI*2;const d=100+Math.random()*300;p.style.cssText=`--tx:${Math.cos(a)*d}px;--ty:${Math.sin(a)*d}px;background:hsl(${Math.random()*360},100%,60%);animation-delay:${Math.random()*0.5}s`;c.appendChild(p)}</script>
+<script>const c=document.getElementById('p');for(let i=0;i<50;i++){const p=document.createElement('div');p.className='p';const a=Math.random()*Math.PI*2;const d=100+Math.random()*300;p.style.cssText='--tx:'+Math.cos(a)*d+'px;--ty:'+Math.sin(a)*d+'px;background:hsl('+Math.random()*360+',100%,60%);animation-delay:'+Math.random()*0.5+'s';c.appendChild(p)}</script>
 </body></html>"""
     ),
     HyperFrame(
