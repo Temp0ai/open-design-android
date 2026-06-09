@@ -123,7 +123,7 @@ body{margin:0;display:flex;align-items:center;justify-content:center;height:100v
     HyperFrame(
         id = "particle-burst",
         name = "Particle Burst",
-        description: "Explosive particle animation",
+        description = "Explosive particle animation",
         category = "Effect",
         animationType = "particles",
         htmlTemplate = """<!DOCTYPE html><html><head><style>
